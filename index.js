@@ -41,6 +41,68 @@ function updateTable(stockData) {
   });
 }
 
-// 일정 주기마다 업데이트 (5초마다)
-setInterval(fetchStockPrices, 5000);
-fetchStockPrices();
+//웹소켓 연결
+function webSocketConfig() {
+  var maxRetries = 10;
+  var retryCount = 0;
+
+  function connect(websoccketServer) {
+    if (websocket) {
+      websocket.close();
+    }
+
+    websocket = new WebSocket(websoccketServer);
+    websocket.binaryType = "arraybuffer";
+
+    websocket.onopen = function (evt) {
+      onOpen(evt);
+      retryCount = 0;
+    };
+
+    websocket.onclose = function (e) {};
+
+    websocket.onmessage = function (evt) {
+      onMessage(evt);
+    };
+
+    websocket.onerror = function (e) {
+      console.log("Connection Error", e);
+      if (retryCount < maxRetries) {
+        retryCount++;
+        console.log(`Reconnecting in ${retryCount} seconds...`);
+        setTimeout(function () {
+          connect(upbitWebsocketServer);
+        }, 100);
+      } else {
+        console.log("Max retries reached. Could not connect to WebSocket.");
+        var marketMode = document
+          .getElementsByName("market-mode")[0]
+          .value.toLowerCase();
+        connect(barakWebsocketServer + "/" + marketMode);
+      }
+    };
+  }
+
+  connect(upbitWebsocketServer);
+}
+
+async function onOpen() {
+  var code = [];
+  for (i = 0; i < globalData.length; i++) {
+    code.push(globalData[i].market);
+  }
+
+  var marketMode = await getObjectFromLocalStorage("marketMode");
+  if (marketMode == "BTC") code.unshift("KRW-BTC");
+
+  var msg = [
+    { ticket: generateRandomValue() },
+    {
+      type: "ticker",
+      codes: code,
+    },
+  ];
+
+  msg = JSON.stringify(msg);
+  websocket.send(msg);
+}

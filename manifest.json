@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "STOKY - 한국 투자 Open API 기반 주식 시세 현황판",
+  "version": "0.0.1",
+  "description": "한국 투자 Open API 기반 주식 시세 현황판입니다.",
+  "icons": {
+    "16": "./stoky_icon.png",
+    "48": "./stoky_icon.png",
+    "128": "./stoky_icon.png"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "stocy_icon.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+X",
+        "mac": "Alt+X"
+      },
+      "description": "Barak"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["notifications", "storage"]
+}

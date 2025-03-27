@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ES6", // ES6 이상으로 설정
+        "lib": [
+            "dom",
+            "esnext"
+        ], // 웹 API와 최신 ES 기능 사용
+        "moduleResolution": "node" // 모듈 해석 방식 설정
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
