@@ -1,4 +1,4 @@
-import { stocks } from "./js/mockStocks.js";
+import { stocks } from "./mockStocks.js";
 
 // 정렬 상태
 let sortKey = null;

@@ -8,6 +8,21 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
+    <style>
+      .popup-container {
+        width: 340px;
+        padding: 10px;
+        background: #fff;
+        font-family: "Segoe UI", Arial, sans-serif;
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+      }
+      .popup-container::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        background: transparent !important;
+      }
+    </style>
   </head>
   <body>
     <div class="popup-container">
@@ -30,6 +45,6 @@
         <tbody id="stock-tbody"></tbody>
       </table>
     </div>
-    <script type="module" src="popup.js"></script>
+    <script type="module" src="js/popup.js"></script>
   </body>
 </html>

@@ -4,27 +4,44 @@
   background: #fff;
   font-family: "Segoe UI", Arial, sans-serif;
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox 기본 숨김 */
+  scrollbar-width: none; /* Firefox: 기본 숨김 */
+  position: relative;
 }
+
+/* 기본적으로 스크롤바 완전 숨김 (크롬/엣지) */
 .popup-container::-webkit-scrollbar {
   width: 8px;
   background: transparent;
-  transition: background 0.2s;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: none;
 }
+
+/* 마우스 오버 시에만 스크롤바 표시 */
 .popup-container:hover::-webkit-scrollbar {
-  background: #eee;
+  display: block;
+  opacity: 1;
 }
+
+/* 스크롤바 썸(막대) 스타일 */
 .popup-container::-webkit-scrollbar-thumb {
-  background: #bbb;
+  background: rgba(0, 0, 0, 0.18);
   border-radius: 4px;
   opacity: 0;
   transition: opacity 0.2s;
 }
+
+/* 마우스 오버 시에만 썸(막대) 표시 */
 .popup-container:hover::-webkit-scrollbar-thumb {
   opacity: 1;
 }
-.popup-container:not(:hover)::-webkit-scrollbar-thumb {
-  background: transparent;
+
+/* Firefox: hover 시에만 스크롤바 표시 */
+.popup-container:not(:hover) {
+  scrollbar-width: none;
+}
+.popup-container:hover {
+  scrollbar-width: thin;
 }
 .popup-container {
   scrollbar-gutter: stable;
@@ -65,11 +82,11 @@
 }
 .stock-table th:nth-child(1),
 .stock-table td:nth-child(1) {
-  min-width: 90px;
+  min-width: 120px;
 }
 .stock-table th:nth-child(2),
 .stock-table td:nth-child(2) {
-  min-width: 70px;
+  min-width: 80px;
 }
 .stock-table th:nth-child(3),
 .stock-table td:nth-child(3) {
