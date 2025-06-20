@@ -1,0 +1,51 @@
+.popup-container {
+  width: 400px;
+  padding: 16px;
+  background: #fff;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+.header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+#market-select,
+#search {
+  padding: 6px 8px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.stock-table th,
+.stock-table td {
+  padding: 8px 6px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+.stock-name {
+  font-weight: bold;
+}
+.stock-code {
+  font-size: 12px;
+  color: #888;
+}
+.text-rise {
+  color: #d32f2f;
+  font-weight: bold;
+}
+.text-fall {
+  color: #1976d2;
+  font-weight: bold;
+}
+.text-even {
+  color: #333;
+}
+.sub {
+  font-size: 12px;
+  color: #888;
+}

@@ -26,26 +26,19 @@ const stocks = [
   },
 ];
 
-// 숫자 포맷
 function formatNumber(num) {
   return Number(num).toLocaleString();
 }
-
-// 전일대비 등락 색상
 function getChangeClass(rate) {
   if (rate > 0) return "text-rise";
   if (rate < 0) return "text-fall";
   return "text-even";
 }
-
-// 억 단위 변환
 function formatVolume(val) {
   return (val / 100000000).toLocaleString(undefined, {
     maximumFractionDigits: 0,
   });
 }
-
-// 테이블 렌더링
 function renderTable(data) {
   const tbody = document.getElementById("stock-tbody");
   tbody.innerHTML = "";
@@ -75,5 +68,21 @@ function renderTable(data) {
   });
 }
 
-// 렌더링 실행
+// 검색 및 마켓 선택 기능
+const searchInput = document.getElementById("search");
+const marketSelect = document.getElementById("market-select");
+
+function filterStocks() {
+  const keyword = searchInput.value.trim();
+  // 마켓 선택은 추후 확장 가능
+  const filtered = stocks.filter(
+    (s) => s.name.includes(keyword) || s.code.includes(keyword)
+  );
+  renderTable(filtered);
+}
+
+searchInput.addEventListener("input", filterStocks);
+marketSelect.addEventListener("change", filterStocks);
+
+// 초기 렌더링
 renderTable(stocks);
