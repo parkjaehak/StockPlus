@@ -9,6 +9,13 @@ const PAGE_SIZE = 10;
 let currentPage = 1;
 let filteredStocks = stocks;
 
+const headerDefs = [
+  { label: "종목명", key: null },
+  { label: "현재가", key: "price" },
+  { label: "전일대비", key: "change_rate" },
+  { label: "거래대금", key: "volume" },
+];
+
 function formatNumber(num) {
   return Number(num).toLocaleString();
 }
@@ -22,9 +29,17 @@ function formatVolume(val) {
     maximumFractionDigits: 0,
   });
 }
-function getSortArrow(key) {
-  if (sortKey !== key) return "";
-  return sortOrder === "asc" ? " ▲" : " ▼";
+function getSortIcon(key) {
+  if (!key) return "";
+  const isActive = sortKey === key;
+  let iconClass = "fas fa-sort sort-icon";
+  if (isActive) {
+    iconClass =
+      sortOrder === "asc"
+        ? "fas fa-sort-up sort-icon sort-active"
+        : "fas fa-sort-down sort-icon sort-active";
+  }
+  return `<i class="${iconClass}"></i>`;
 }
 function renderTable(data, append = false) {
   const tbody = document.getElementById("stock-tbody");
@@ -37,9 +52,7 @@ function renderTable(data, append = false) {
         <div class="stock-code">${stock.code}</div>
       </td>
       <td class="${getChangeClass(stock.change_rate)}">
-        ${
-          stock.change_rate > 0 ? "+" : stock.change_rate < 0 ? "-" : ""
-        }${formatNumber(Math.abs(stock.price))}
+        ${formatNumber(Math.abs(stock.price))}
       </td>
       <td class="${getChangeClass(stock.change_rate)}">
         <div>${
@@ -52,6 +65,29 @@ function renderTable(data, append = false) {
       <td>${formatVolume(stock.volume)}</td>
     `;
     tbody.appendChild(tr);
+  });
+}
+
+function renderTableHeader() {
+  const thead = document.querySelector(".stock-table thead tr");
+  thead.innerHTML = "";
+  headerDefs.forEach((h, idx) => {
+    const th = document.createElement("th");
+    th.innerHTML = h.label + (h.key ? getSortIcon(h.key) : "");
+    if (h.key) {
+      th.classList.add("sortable");
+      th.dataset.key = h.key;
+      th.addEventListener("click", () => sortStocks(h.key));
+    }
+    thead.appendChild(th);
+  });
+}
+
+function updateHeaderArrows() {
+  const ths = document.querySelectorAll(".stock-table th");
+  headerDefs.forEach((h, idx) => {
+    if (!h.key) return;
+    ths[idx].innerHTML = h.label + getSortIcon(h.key);
   });
 }
 
@@ -70,6 +106,7 @@ function sortStocks(key) {
   });
   currentPage = 1;
   renderTable(filteredStocks.slice(0, PAGE_SIZE));
+  updateHeaderArrows();
 }
 
 // 검색 및 마켓 선택 기능
@@ -86,31 +123,12 @@ function filterStocks() {
   } else {
     currentPage = 1;
     renderTable(filteredStocks.slice(0, PAGE_SIZE));
+    updateHeaderArrows();
   }
 }
 
 searchInput.addEventListener("input", filterStocks);
 marketSelect.addEventListener("change", filterStocks);
-
-// 테이블 헤더 클릭 시 정렬
-const ths = document.querySelectorAll(".stock-table th");
-ths[1].addEventListener("click", () => sortStocks("price"));
-ths[2].addEventListener("click", () => sortStocks("change_rate"));
-ths[3].addEventListener("click", () => sortStocks("volume"));
-
-// 정렬 화살표 표시
-function updateHeaderArrows() {
-  ths[1].textContent = "현재가" + getSortArrow("price");
-  ths[2].textContent = "전일대비" + getSortArrow("change_rate");
-  ths[3].textContent = "거래대금" + getSortArrow("volume");
-}
-
-// 정렬 시 헤더 업데이트
-ths.forEach((th, idx) => {
-  if (idx > 0) {
-    th.addEventListener("click", updateHeaderArrows);
-  }
-});
 
 // 무한 스크롤 구현
 const tbody = document.getElementById("stock-tbody");
@@ -136,6 +154,7 @@ function loadMore() {
 
 // 초기 렌더링
 function initialRender() {
+  renderTableHeader();
   filteredStocks = stocks;
   currentPage = 1;
   renderTable(filteredStocks.slice(0, PAGE_SIZE));

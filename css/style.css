@@ -1,37 +1,116 @@
 .popup-container {
-  width: 400px;
-  padding: 16px;
+  width: 340px;
+  padding: 10px;
   background: #fff;
   font-family: "Segoe UI", Arial, sans-serif;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox 기본 숨김 */
+}
+.popup-container::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+  transition: background 0.2s;
+}
+.popup-container:hover::-webkit-scrollbar {
+  background: #eee;
+}
+.popup-container::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.popup-container:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+.popup-container:not(:hover)::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+.popup-container {
+  scrollbar-gutter: stable;
 }
 .header {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 #market-select,
 #search {
-  padding: 6px 8px;
-  font-size: 15px;
+  padding: 4px 6px;
+  font-size: 13px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 .stock-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: 13px;
 }
 .stock-table th,
 .stock-table td {
-  padding: 8px 6px;
+  padding: 6px 4px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
-.stock-name {
+.stock-table th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.stock-table th,
+.stock-table td {
+  min-width: 70px;
+}
+.stock-table th:nth-child(1),
+.stock-table td:nth-child(1) {
+  min-width: 90px;
+}
+.stock-table th:nth-child(2),
+.stock-table td:nth-child(2) {
+  min-width: 70px;
+}
+.stock-table th:nth-child(3),
+.stock-table td:nth-child(3) {
+  min-width: 80px;
+}
+.stock-table th:nth-child(4),
+.stock-table td:nth-child(4) {
+  min-width: 70px;
+}
+.sort-icons {
+  margin-left: 4px;
+  display: inline-flex;
+  flex-direction: row;
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.stock-table th:hover .sort-icons,
+.stock-table th .sort-active {
+  opacity: 1;
+}
+.sort-icon {
+  margin-left: 4px;
+  font-size: 13px;
+  color: #bbb;
+  vertical-align: middle;
+  transition: color 0.15s;
+  width: 16px;
+  display: inline-block;
+  text-align: center;
+}
+.sort-active {
+  color: #222 !important;
   font-weight: bold;
 }
+.stock-name {
+  font-weight: bold;
+  font-size: 13px;
+}
 .stock-code {
-  font-size: 12px;
+  font-size: 11px;
   color: #888;
 }
 .text-rise {
@@ -46,6 +125,6 @@
   color: #333;
 }
 .sub {
-  font-size: 12px;
+  font-size: 11px;
   color: #888;
 }
