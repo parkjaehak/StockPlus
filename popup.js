@@ -1,30 +1,13 @@
-// Mock 데이터
-const stocks = [
-  {
-    name: "삼성전자",
-    code: "005930",
-    price: 82000,
-    change_rate: 1.23,
-    change_price: 1000,
-    volume: 125000000000,
-  },
-  {
-    name: "카카오",
-    code: "035720",
-    price: 61000,
-    change_rate: -0.85,
-    change_price: -520,
-    volume: 43000000000,
-  },
-  {
-    name: "LG에너지솔루션",
-    code: "373220",
-    price: 410000,
-    change_rate: 0,
-    change_price: 0,
-    volume: 9800000000,
-  },
-];
+import { stocks } from "./js/mockStocks.js";
+
+// 정렬 상태
+let sortKey = null;
+let sortOrder = "desc"; // 'asc' or 'desc'
+
+// 무한 스크롤 관련
+const PAGE_SIZE = 10;
+let currentPage = 1;
+let filteredStocks = stocks;
 
 function formatNumber(num) {
   return Number(num).toLocaleString();
@@ -39,9 +22,13 @@ function formatVolume(val) {
     maximumFractionDigits: 0,
   });
 }
-function renderTable(data) {
+function getSortArrow(key) {
+  if (sortKey !== key) return "";
+  return sortOrder === "asc" ? " ▲" : " ▼";
+}
+function renderTable(data, append = false) {
   const tbody = document.getElementById("stock-tbody");
-  tbody.innerHTML = "";
+  if (!append) tbody.innerHTML = "";
   data.forEach((stock) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -68,21 +55,90 @@ function renderTable(data) {
   });
 }
 
+// 정렬 함수
+function sortStocks(key) {
+  if (sortKey === key) {
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  } else {
+    sortKey = key;
+    sortOrder = "desc";
+  }
+  filteredStocks.sort((a, b) => {
+    if (a[key] < b[key]) return sortOrder === "asc" ? -1 : 1;
+    if (a[key] > b[key]) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+  currentPage = 1;
+  renderTable(filteredStocks.slice(0, PAGE_SIZE));
+}
+
 // 검색 및 마켓 선택 기능
 const searchInput = document.getElementById("search");
 const marketSelect = document.getElementById("market-select");
 
 function filterStocks() {
   const keyword = searchInput.value.trim();
-  // 마켓 선택은 추후 확장 가능
-  const filtered = stocks.filter(
+  filteredStocks = stocks.filter(
     (s) => s.name.includes(keyword) || s.code.includes(keyword)
   );
-  renderTable(filtered);
+  if (sortKey) {
+    sortStocks(sortKey);
+  } else {
+    currentPage = 1;
+    renderTable(filteredStocks.slice(0, PAGE_SIZE));
+  }
 }
 
 searchInput.addEventListener("input", filterStocks);
 marketSelect.addEventListener("change", filterStocks);
 
+// 테이블 헤더 클릭 시 정렬
+const ths = document.querySelectorAll(".stock-table th");
+ths[1].addEventListener("click", () => sortStocks("price"));
+ths[2].addEventListener("click", () => sortStocks("change_rate"));
+ths[3].addEventListener("click", () => sortStocks("volume"));
+
+// 정렬 화살표 표시
+function updateHeaderArrows() {
+  ths[1].textContent = "현재가" + getSortArrow("price");
+  ths[2].textContent = "전일대비" + getSortArrow("change_rate");
+  ths[3].textContent = "거래대금" + getSortArrow("volume");
+}
+
+// 정렬 시 헤더 업데이트
+ths.forEach((th, idx) => {
+  if (idx > 0) {
+    th.addEventListener("click", updateHeaderArrows);
+  }
+});
+
+// 무한 스크롤 구현
+const tbody = document.getElementById("stock-tbody");
+const observerTarget = document.createElement("div");
+tbody.parentNode.appendChild(observerTarget);
+
+const observer = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    loadMore();
+  }
+});
+observer.observe(observerTarget);
+
+function loadMore() {
+  const total = filteredStocks.length;
+  const nextPage = currentPage + 1;
+  const start = currentPage * PAGE_SIZE;
+  const end = nextPage * PAGE_SIZE;
+  if (start >= total) return;
+  renderTable(filteredStocks.slice(start, end), true);
+  currentPage = nextPage;
+}
+
 // 초기 렌더링
-renderTable(stocks);
+function initialRender() {
+  filteredStocks = stocks;
+  currentPage = 1;
+  renderTable(filteredStocks.slice(0, PAGE_SIZE));
+  updateHeaderArrows();
+}
+initialRender();
