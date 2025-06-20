@@ -2,12 +2,27 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>실시간 주식 시세</title>
-    <script src="content.js" defer></script>
+    <title>한국투자증권 실시간 시세판</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h2>📈 한국투자증권 실시간 주식</h2>
-    <div id="stock-price">⏳ 데이터 로딩 중...</div>
+    <nav>한국투자증권 실시간 시세판</nav>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>종목명</th>
+            <th>현재가(원)</th>
+            <th>전일대비</th>
+            <th>거래대금(억)</th>
+          </tr>
+        </thead>
+        <tbody id="stock-tbody">
+          <!-- JS로 데이터 렌더링 -->
+        </tbody>
+      </table>
+    </div>
+    <footer>© 2025</footer>
+    <script src="main.js"></script>
   </body>
 </html>
