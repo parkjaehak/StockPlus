@@ -6,6 +6,7 @@ export const stocks = [
     change_rate: 1.23,
     change_price: 1000,
     volume: 125000000000,
+    market: "KOSPI",
   },
   {
     name: "카카오",
@@ -14,6 +15,7 @@ export const stocks = [
     change_rate: -0.85,
     change_price: -520,
     volume: 43000000000,
+    market: "KOSPI",
   },
   {
     name: "LG에너지솔루션",
@@ -22,6 +24,7 @@ export const stocks = [
     change_rate: 0,
     change_price: 0,
     volume: 9800000000,
+    market: "KOSPI",
   },
   {
     name: "SK하이닉스",
@@ -30,6 +33,7 @@ export const stocks = [
     change_rate: 2.15,
     change_price: 2740,
     volume: 98000000000,
+    market: "KOSPI",
   },
   {
     name: "NAVER",
@@ -38,6 +42,7 @@ export const stocks = [
     change_rate: -1.12,
     change_price: -2260,
     volume: 32000000000,
+    market: "KOSPI",
   },
   {
     name: "현대차",
@@ -46,6 +51,7 @@ export const stocks = [
     change_rate: 0.75,
     change_price: 1560,
     volume: 21000000000,
+    market: "KOSPI",
   },
   {
     name: "기아",
@@ -54,6 +60,7 @@ export const stocks = [
     change_rate: 1.01,
     change_price: 950,
     volume: 18000000000,
+    market: "KOSPI",
   },
   {
     name: "포스코홀딩스",
@@ -62,6 +69,7 @@ export const stocks = [
     change_rate: -0.5,
     change_price: -3000,
     volume: 15000000000,
+    market: "KOSPI",
   },
   {
     name: "삼성SDI",
@@ -70,6 +78,7 @@ export const stocks = [
     change_rate: 0.2,
     change_price: 1400,
     volume: 12000000000,
+    market: "KOSPI",
   },
   {
     name: "삼성바이오로직스",
@@ -78,6 +87,7 @@ export const stocks = [
     change_rate: -0.8,
     change_price: -6400,
     volume: 11000000000,
+    market: "KOSPI",
   },
   {
     name: "셀트리온",
@@ -86,6 +96,7 @@ export const stocks = [
     change_rate: 1.5,
     change_price: 2700,
     volume: 9000000000,
+    market: "KOSPI",
   },
   {
     name: "카카오뱅크",
@@ -94,6 +105,7 @@ export const stocks = [
     change_rate: 0.3,
     change_price: 100,
     volume: 8000000000,
+    market: "KOSPI",
   },
   {
     name: "카카오페이",
@@ -102,6 +114,7 @@ export const stocks = [
     change_rate: -0.6,
     change_price: -390,
     volume: 7000000000,
+    market: "KOSPI",
   },
   {
     name: "하나금융지주",
@@ -110,6 +123,7 @@ export const stocks = [
     change_rate: 0.9,
     change_price: 450,
     volume: 6000000000,
+    market: "KOSPI",
   },
   {
     name: "신한지주",
@@ -118,6 +132,7 @@ export const stocks = [
     change_rate: -0.4,
     change_price: -190,
     volume: 5900000000,
+    market: "KOSPI",
   },
   {
     name: "KB금융",
@@ -126,6 +141,7 @@ export const stocks = [
     change_rate: 0.7,
     change_price: 370,
     volume: 5800000000,
+    market: "KOSPI",
   },
   {
     name: "삼성물산",
@@ -134,6 +150,7 @@ export const stocks = [
     change_rate: 1.1,
     change_price: 1300,
     volume: 5700000000,
+    market: "KOSPI",
   },
   {
     name: "LG화학",
@@ -142,6 +159,7 @@ export const stocks = [
     change_rate: -1.3,
     change_price: -8500,
     volume: 5600000000,
+    market: "KOSPI",
   },
   {
     name: "SK이노베이션",
@@ -150,6 +168,7 @@ export const stocks = [
     change_rate: 0.5,
     change_price: 900,
     volume: 5500000000,
+    market: "KOSPI",
   },
   {
     name: "SK텔레콤",
@@ -158,6 +177,7 @@ export const stocks = [
     change_rate: 0.2,
     change_price: 120,
     volume: 5400000000,
+    market: "KOSPI",
   },
   {
     name: "KT&G",
@@ -166,6 +186,7 @@ export const stocks = [
     change_rate: -0.7,
     change_price: -630,
     volume: 5300000000,
+    market: "KOSPI",
   },
   {
     name: "LG전자",
@@ -174,6 +195,7 @@ export const stocks = [
     change_rate: 1.4,
     change_price: 1700,
     volume: 5200000000,
+    market: "KOSPI",
   },
   {
     name: "아모레퍼시픽",
@@ -182,6 +204,7 @@ export const stocks = [
     change_rate: -0.9,
     change_price: -1170,
     volume: 5100000000,
+    market: "KOSPI",
   },
   {
     name: "CJ제일제당",
@@ -190,6 +213,7 @@ export const stocks = [
     change_rate: 0.6,
     change_price: 2100,
     volume: 5000000000,
+    market: "KOSPI",
   },
   {
     name: "한화솔루션",
@@ -198,6 +222,7 @@ export const stocks = [
     change_rate: 1.2,
     change_price: 600,
     volume: 4900000000,
+    market: "KOSPI",
   },
   {
     name: "대한항공",
@@ -206,6 +231,7 @@ export const stocks = [
     change_rate: -0.3,
     change_price: -90,
     volume: 4800000000,
+    market: "KOSPI",
   },
   {
     name: "HMM",
@@ -214,6 +240,7 @@ export const stocks = [
     change_rate: 0.8,
     change_price: 200,
     volume: 4700000000,
+    market: "KOSPI",
   },
   {
     name: "현대모비스",
@@ -222,6 +249,7 @@ export const stocks = [
     change_rate: -1.1,
     change_price: -2200,
     volume: 4600000000,
+    market: "KOSPI",
   },
   {
     name: "삼성엔지니어링",
@@ -230,6 +258,7 @@ export const stocks = [
     change_rate: 0.4,
     change_price: 120,
     volume: 4500000000,
+    market: "KOSPI",
   },
   {
     name: "롯데케미칼",
@@ -238,6 +267,7 @@ export const stocks = [
     change_rate: 0.9,
     change_price: 1800,
     volume: 4400000000,
+    market: "KOSPI",
   },
   {
     name: "현대글로비스",
@@ -246,5 +276,141 @@ export const stocks = [
     change_rate: -0.5,
     change_price: -900,
     volume: 4300000000,
+    market: "KOSPI",
+  },
+  {
+    name: "에코프로",
+    code: "086520",
+    price: 120000,
+    change_rate: 2.5,
+    change_price: 3000,
+    volume: 8000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "셀트리온헬스케어",
+    code: "091990",
+    price: 90000,
+    change_rate: -1.1,
+    change_price: -1000,
+    volume: 7000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "펄어비스",
+    code: "263750",
+    price: 60000,
+    change_rate: 0.8,
+    change_price: 500,
+    volume: 6000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "CJ ENM",
+    code: "035760",
+    price: 100000,
+    change_rate: -0.7,
+    change_price: -700,
+    volume: 5000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "스튜디오드래곤",
+    code: "253450",
+    price: 80000,
+    change_rate: 1.2,
+    change_price: 950,
+    volume: 4000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "에이치엘비",
+    code: "028300",
+    price: 35000,
+    change_rate: 0.5,
+    change_price: 180,
+    volume: 3000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "카카오게임즈",
+    code: "293490",
+    price: 40000,
+    change_rate: -0.9,
+    change_price: -360,
+    volume: 2500000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "알테오젠",
+    code: "196170",
+    price: 70000,
+    change_rate: 1.7,
+    change_price: 1200,
+    volume: 2000000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "씨젠",
+    code: "096530",
+    price: 30000,
+    change_rate: -1.3,
+    change_price: -400,
+    volume: 1800000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "에코프로비엠",
+    code: "247540",
+    price: 150000,
+    change_rate: 0.6,
+    change_price: 900,
+    volume: 1700000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "SK머티리얼즈",
+    code: "036490",
+    price: 200000,
+    change_rate: 0.2,
+    change_price: 400,
+    volume: 1600000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "동진쎄미켐",
+    code: "005290",
+    price: 50000,
+    change_rate: -0.8,
+    change_price: -400,
+    volume: 1500000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "엘앤에프",
+    code: "066970",
+    price: 180000,
+    change_rate: 1.1,
+    change_price: 2000,
+    volume: 1400000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "파라다이스",
+    code: "034230",
+    price: 20000,
+    change_rate: 0.4,
+    change_price: 80,
+    volume: 1300000000,
+    market: "KOSDAQ",
+  },
+  {
+    name: "JYP Ent.",
+    code: "035900",
+    price: 60000,
+    change_rate: 0.9,
+    change_price: 540,
+    volume: 1200000000,
+    market: "KOSDAQ",
   },
 ];

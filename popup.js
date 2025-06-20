@@ -115,8 +115,11 @@ const marketSelect = document.getElementById("market-select");
 
 function filterStocks() {
   const keyword = searchInput.value.trim();
+  const market = marketSelect.value;
   filteredStocks = stocks.filter(
-    (s) => s.name.includes(keyword) || s.code.includes(keyword)
+    (s) =>
+      s.market === market &&
+      (s.name.includes(keyword) || s.code.includes(keyword))
   );
   if (sortKey) {
     sortStocks(sortKey);
@@ -155,7 +158,7 @@ function loadMore() {
 // 초기 렌더링
 function initialRender() {
   renderTableHeader();
-  filteredStocks = stocks;
+  filteredStocks = stocks.filter((s) => s.market === marketSelect.value);
   currentPage = 1;
   renderTable(filteredStocks.slice(0, PAGE_SIZE));
   updateHeaderArrows();
