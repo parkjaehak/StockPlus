@@ -318,6 +318,13 @@ function sortStocks(key) {
 const searchInput = document.getElementById("search");
 const marketSelect = document.getElementById("market-select");
 
+// 디바운싱 함수 추가
+let searchTimeout;
+function debounceSearch(func, delay) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(func, delay);
+}
+
 async function filterStocks() {
   const keyword = searchInput.value.trim().toLowerCase();
 
@@ -366,7 +373,6 @@ async function filterStocks() {
       }
     } else {
       filteredStocks = [];
-      showNotification("검색 결과가 없습니다.", "info");
     }
 
     currentPage = 1;
@@ -612,7 +618,9 @@ document.addEventListener("DOMContentLoaded", () => {
   createApiKeySettings();
   initialRender();
   marketSelect.addEventListener("change", filterByMarket);
-  searchInput.addEventListener("input", filterStocks);
+  searchInput.addEventListener("input", () => {
+    debounceSearch(filterStocks, 500); // 500ms 디바운싱
+  });
   document.querySelector(".table-container").addEventListener("scroll", (e) => {
     if (
       e.target.scrollTop + e.target.clientHeight >=
