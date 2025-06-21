@@ -1,31 +1,131 @@
-# Stock View 크롬 익스텐션
+# StockPlus - 한국투자 Open API 기반 주식 시세 현황
 
 ## 소개
 
-한국투자증권 API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다.
+한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다.
+
+## 주요 기능
+
+- 🔴 **실시간 주식 시세**: 한국투자증권 Open API 연동
+- 📊 **실시간 데이터 업데이트**: WebSocket을 통한 실시간 가격 변동
+- 🔍 **종목 검색**: 종목명 또는 종목코드로 검색
+- 📈 **마켓별 필터링**: KOSPI, KOSDAQ 선택
+- ⬆️ **컬럼별 정렬**: 현재가, 전일대비, 거래대금 기준 정렬
+- 📜 **무한 스크롤**: 페이지네이션 없이 스크롤로 데이터 로드
+- ⚙️ **API 설정**: UI에서 API 키 설정 가능
 
 ## 설치 방법
 
 1. 이 저장소를 다운로드 또는 클론합니다.
-2. 크롬 브라우저에서 chrome://extensions 접속
+2. 크롬 브라우저에서 `chrome://extensions` 접속
 3. 우측 상단 '개발자 모드' 활성화
 4. '압축해제된 확장 프로그램을 로드' 클릭 후 이 폴더 선택
 5. 확장 프로그램 아이콘 클릭 시 팝업이 나타납니다.
 
-## 개발 및 연동 가이드
+## 한국투자증권 Open API 설정
 
-- 초기에는 Mock 데이터로 동작합니다.
-- 한국투자증권 API 연동 시 background.js에 WebSocket 또는 REST API 연동 코드를 추가하세요.
-- API 키 발급 및 인증은 한국투자증권 개발자센터 참고
-- 실시간 데이터는 background.js에서 받아 popup.js로 전달하는 구조로 개발하세요.
+### 1. API 키 발급
 
-## 참고
+1. [한국투자증권 개발자센터](https://apiportal.koreainvestment.com/) 접속
+2. 회원가입 및 로그인
+3. "Open API 신청" 메뉴에서 API 신청
+4. APP KEY와 APP SECRET 발급
 
-- UI/UX는 css/style.css에서 수정 가능
-- 검색, 마켓 선택 등 기능은 popup.js에서 구현
+### 2. API 키 설정
 
-## api
+1. 확장 프로그램 팝업에서 "설정" 버튼 클릭
+2. APP KEY와 APP SECRET 입력
+3. "저장" 버튼 클릭
 
-https://apiportal.koreainvestment.com/apiservice-summary
+### 3. API 권한 설정
 
-## Chrome web store
+- 실시간 데이터 사용을 위해 한국투자증권에서 실시간 API 권한 승인 필요
+- 개발자센터에서 실시간 API 신청 및 승인 절차 진행
+
+## 프로젝트 구조
+
+```
+stock-view-chrome/
+├── manifest.json          # 확장 프로그램 설정
+├── background.js          # 백그라운드 서비스 워커 (API 연동)
+├── popup.html            # 팝업 UI
+├── popup.js              # 팝업 로직
+├── js/
+│   ├── apiConfig.js      # API 설정 및 인증
+│   └── mockStocks.js     # Mock 데이터 (API 실패시 사용)
+├── css/
+│   └── style.css         # 스타일시트
+└── README.md
+```
+
+## API 연동 구조
+
+### 1. REST API (현재가 조회)
+
+- **엔드포인트**: `https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price`
+- **인증**: OAuth 2.0 Bearer Token
+- **용도**: 초기 데이터 로드, 주기적 업데이트
+
+### 2. WebSocket (실시간 데이터)
+
+- **엔드포인트**: `ws://ops.koreainvestment.com:21001`
+- **용도**: 실시간 가격 변동 수신
+- **구독**: 관심 종목 실시간 구독
+
+### 3. 데이터 흐름
+
+```
+한국투자증권 API → background.js → popup.js → UI 업데이트
+```
+
+## 개발 가이드
+
+### API 설정 수정
+
+`js/apiConfig.js`에서 API 설정을 수정할 수 있습니다:
+
+```javascript
+const API_CONFIG = {
+  APP_KEY: "YOUR_APP_KEY_HERE",
+  APP_SECRET: "YOUR_APP_SECRET_HERE",
+  BASE_URL: "https://openapi.koreainvestment.com:9443",
+  // ...
+};
+```
+
+### 새로운 기능 추가
+
+1. `background.js`에 API 호출 로직 추가
+2. `popup.js`에 UI 로직 추가
+3. `css/style.css`에 스타일 추가
+
+### 에러 처리
+
+- API 호출 실패시 Mock 데이터로 자동 전환
+- 네트워크 오류시 사용자에게 알림
+- 실시간 연결 끊김시 자동 재연결 시도
+
+## 주의사항
+
+1. **API 호출 제한**: 한국투자증권 API는 호출 횟수 제한이 있습니다.
+2. **실시간 데이터**: 실시간 데이터는 거래시간에만 제공됩니다.
+3. **API 키 보안**: API 키는 안전하게 관리해야 합니다.
+4. **개발자 모드**: 개발 중에는 크롬 개발자 모드가 필요합니다.
+
+## 참고 자료
+
+- [한국투자증권 Open API 가이드](https://apiportal.koreainvestment.com/apiservice-summary)
+- [Chrome Extension 개발 가이드](https://developer.chrome.com/docs/extensions/)
+- [WebSocket API 문서](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+
+## 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+
+## 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request

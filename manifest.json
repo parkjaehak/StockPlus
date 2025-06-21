@@ -25,5 +25,12 @@
     "service_worker": "background.js"
   },
   "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://openapi.koreainvestment.com/*"]
+  "host_permissions": [
+    "https://openapi.koreainvestment.com/*",
+    "ws://ops.koreainvestment.com/*",
+    "wss://ops.koreainvestment.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
 }
