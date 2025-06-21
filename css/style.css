@@ -100,6 +100,12 @@
   min-width: 70px;
   width: 70px;
 }
+.stock-table td:first-child {
+  width: 150px; /* 종목명 열 너비 확보 */
+  text-align: left;
+  white-space: normal; /* 자동 줄바꿈 허용 */
+  word-break: keep-all; /* 단어 단위로 줄바꿈 */
+}
 .sort-icons {
   margin-left: 4px;
   display: inline-flex;
@@ -129,6 +135,7 @@
 .stock-name {
   font-weight: bold;
   font-size: 13px;
+  line-height: 1.3; /* 줄 간격 조정 */
 }
 .stock-code {
   font-size: 11px;
