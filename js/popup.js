@@ -1,4 +1,39 @@
-import { stocks } from "./mockStocks.js";
+const initialStocks = [
+  { name: "삼성전자", code: "005930", market: "KOSPI" },
+  { name: "카카오", code: "035720", market: "KOSPI" },
+  { name: "LG에너지솔루션", code: "373220", market: "KOSPI" },
+  { name: "SK하이닉스", code: "000660", market: "KOSPI" },
+  { name: "NAVER", code: "035420", market: "KOSPI" },
+  { name: "현대차", code: "005380", market: "KOSPI" },
+  { name: "기아", code: "000270", market: "KOSPI" },
+  { name: "POSCO홀딩스", code: "005490", market: "KOSPI" },
+  { name: "삼성SDI", code: "006400", market: "KOSPI" },
+  { name: "삼성바이오로직스", code: "207940", market: "KOSPI" },
+  { name: "셀트리온", code: "068270", market: "KOSPI" },
+  { name: "LG화학", code: "051910", market: "KOSPI" },
+  { name: "KB금융", code: "105560", market: "KOSPI" },
+  { name: "신한지주", code: "055550", market: "KOSPI" },
+  { name: "하나금융지주", code: "086790", market: "KOSPI" },
+  { name: "삼성물산", code: "028260", market: "KOSPI" },
+  { name: "HD현대중공업", code: "329180", market: "KOSPI" },
+  { name: "카카오뱅크", code: "323410", market: "KOSPI" },
+  { name: "에코프로비엠", code: "247540", market: "KOSDAQ" },
+  { name: "에코프로", code: "086520", market: "KOSDAQ" },
+  { name: "셀트리온헬스케어", code: "091990", market: "KOSDAQ" },
+  { name: "엘앤에프", code: "066970", market: "KOSDAQ" },
+  { name: "HLB", code: "028300", market: "KOSDAQ" },
+  { name: "카카오게임즈", code: "293490", market: "KOSDAQ" },
+  { name: "펄어비스", code: "263750", market: "KOSDAQ" },
+  { name: "JYP Ent.", code: "035900", market: "KOSDAQ" },
+  { name: "에스엠", code: "041510", market: "KOSDAQ" },
+  { name: "레인보우로보틱스", code: "277810", market: "KOSDAQ" },
+  { name: "리노공업", code: "058470", market: "KOSDAQ" },
+  { name: "클래시스", code: "214150", market: "KOSDAQ" },
+  { name: "알테오젠", code: "196170", market: "KOSDAQ" },
+  { name: "HPSP", code: "403870", market: "KOSDAQ" },
+  { name: "포스코DX", code: "022100", market: "KOSDAQ" },
+  { name: "루닛", code: "328130", market: "KOSDAQ" },
+];
 
 // 정렬 상태
 let sortKey = null;
@@ -43,7 +78,7 @@ async function fetchStockData(stockCodes, marketCode) {
   } catch (error) {
     console.error("API 데이터 조회 실패:", error);
     // API 실패시 mock 데이터 사용
-    return stocks.filter((stock) => stockCodes.includes(stock.code));
+    return [];
   }
 }
 
@@ -63,6 +98,8 @@ async function startRealTimeData(stockCodes) {
         data: stockCodes,
       });
 
+      console.log("background.js로부터 받은 응답:", response);
+
       if (response && response.success) {
         console.log("실시간 데이터 시작 성공:", response.message);
         return true;
@@ -71,6 +108,17 @@ async function startRealTimeData(stockCodes) {
           "실시간 데이터 시작 실패:",
           response?.error || "알 수 없는 오류"
         );
+
+        // 자세한 오류 정보 로깅
+        if (response?.details) {
+          console.error("오류 상세 정보:", response.details);
+        }
+
+        // 사용자에게 오류 알림
+        const errorMessage =
+          response?.error || "실시간 데이터 연결에 실패했습니다.";
+        showNotification(errorMessage, "error");
+
         return false;
       }
     } catch (error) {
@@ -78,6 +126,10 @@ async function startRealTimeData(stockCodes) {
 
       if (error.message.includes("Receiving end does not exist")) {
         console.log("Background script가 아직 로드되지 않았습니다.");
+        showNotification(
+          "확장 프로그램이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
+          "warning"
+        );
         return false;
       }
 
@@ -299,55 +351,71 @@ const searchInput = document.getElementById("search");
 const marketSelect = document.getElementById("market-select");
 
 async function filterStocks() {
-  const keyword = searchInput.value.trim();
+  const keyword = searchInput.value.trim().toLowerCase();
   const market = marketSelect.value;
-  // 한국투자증권 API 시장 코드: J(전체), W(코스피), K(코스닥)
-  const marketCode = market === "KOSPI" ? "W" : market === "KOSDAQ" ? "K" : "J";
 
-  // API에서 데이터 가져오기
-  try {
-    const stockCodes = stocks
-      .filter(
-        (s) =>
-          s.market === market &&
-          (s.name.includes(keyword) || s.code.includes(keyword))
-      )
-      .map((s) => s.code);
-
-    if (stockCodes.length > 0) {
-      const apiData = await fetchStockData(stockCodes, marketCode);
-      filteredStocks = stocks.filter(
-        (s) =>
-          s.market === market &&
-          (s.name.includes(keyword) || s.code.includes(keyword))
-      );
-
-      // 실시간 데이터 시작
-      startRealTimeData(stockCodes);
-    } else {
-      filteredStocks = [];
-    }
-  } catch (error) {
-    console.error("필터링 중 오류:", error);
-    // API 실패시 mock 데이터 사용
-    filteredStocks = stocks.filter(
-      (s) =>
-        s.market === market &&
-        (s.name.includes(keyword) || s.code.includes(keyword))
-    );
+  // 검색어가 없으면, 거래량 순위로 다시 조회
+  if (!keyword) {
+    await filterByMarket();
+    return;
   }
 
-  if (sortKey) {
-    sortStocks(sortKey);
+  // 검색 기능은 2단계에서 구현합니다.
+  // 현재는 검색 시 목록을 비웁니다.
+  showLoading(true);
+  filteredStocks = [];
+  renderTable([]);
+  showLoading(false);
+}
+
+function showLoading(show) {
+  const loader = document.getElementById("loader");
+  if (show) {
+    loader.style.display = "flex";
   } else {
-    currentPage = 1;
-    renderTable(filteredStocks.slice(0, PAGE_SIZE));
-    updateHeaderArrows();
+    loader.style.display = "none";
   }
 }
 
-searchInput.addEventListener("input", filterStocks);
-marketSelect.addEventListener("change", filterStocks);
+async function filterByMarket() {
+  const market = marketSelect.value;
+  showLoading(true);
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: "GET_TOP_VOLUME_STOCKS",
+      data: { marketCode: market },
+    });
+
+    if (response && response.success) {
+      filteredStocks = response.data.map((d) => ({
+        name: d.hts_kor_isnm,
+        code: d.stck_shrn_iscd,
+        market: market,
+        price: parseFloat(d.stck_prpr) || 0,
+        change_rate: parseFloat(d.prdy_ctrt) || 0,
+        change_price: parseFloat(d.prdy_vrss) || 0,
+        volume: parseFloat(d.acml_tr_pbmn) || 0,
+      }));
+
+      const stockCodes = filteredStocks.map((s) => s.code);
+      startRealTimeData(stockCodes);
+    } else {
+      console.error("거래량 상위 종목 조회 실패:", response.error);
+      filteredStocks = [];
+      showNotification("데이터를 불러오는 데 실패했습니다.", "error");
+    }
+
+    currentPage = 1;
+    renderTable(filteredStocks.slice(0, PAGE_SIZE));
+    updateHeaderArrows();
+  } catch (error) {
+    console.error("거래량 상위 종목 조회 중 오류:", error);
+    showNotification("데이터를 불러오는 중 오류가 발생했습니다.", "error");
+  } finally {
+    showLoading(false);
+  }
+}
 
 // 무한 스크롤 구현
 const tbody = document.getElementById("stock-tbody");
@@ -455,27 +523,7 @@ function createApiKeySettings() {
 // 초기 렌더링
 async function initialRender() {
   renderTableHeader();
-
-  // API 설정 UI 추가
-  const container = document.querySelector(".popup-container");
-  if (container) {
-    const settingsDiv = createApiKeySettings();
-    container.insertBefore(settingsDiv, container.firstChild);
-  }
-
-  // 초기 데이터 로드
-  filteredStocks = stocks.filter((s) => s.market === marketSelect.value);
-  currentPage = 1;
-  renderTable(filteredStocks.slice(0, PAGE_SIZE));
-  updateHeaderArrows();
-
-  // 실시간 데이터 시작 (지연 실행)
-  setTimeout(async () => {
-    const initialStockCodes = filteredStocks.slice(0, 10).map((s) => s.code);
-    if (initialStockCodes.length > 0) {
-      await startRealTimeData(initialStockCodes);
-    }
-  }, 1000); // 1초 후 실행
+  await filterByMarket(); // 사용자가 선택한 시장 기준으로 필터링
 }
 
 // 페이지 언로드시 실시간 데이터 중지
@@ -525,4 +573,18 @@ function showNotification(message, type = "info") {
   }, 5000);
 }
 
-initialRender();
+// 초기 렌더링 실행
+document.addEventListener("DOMContentLoaded", () => {
+  createApiKeySettings();
+  initialRender();
+  marketSelect.addEventListener("change", filterByMarket);
+  searchInput.addEventListener("input", filterStocks);
+  document.querySelector(".table-container").addEventListener("scroll", (e) => {
+    if (
+      e.target.scrollTop + e.target.clientHeight >=
+      e.target.scrollHeight - 10
+    ) {
+      loadMore();
+    }
+  });
+});

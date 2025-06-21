@@ -14,6 +14,7 @@ const API_CONFIG = {
 const API_ENDPOINTS = {
   TOKEN: "/oauth2/tokenP",
   STOCK_PRICE: "/uapi/domestic-stock/v1/quotations/inquire-price",
+  VOLUME_RANK: "/uapi/domestic-stock/v1/quotations/volume-rank",
 };
 
 // 토큰 관리
@@ -23,18 +24,38 @@ let tokenRequestPromise = null; // 토큰 발급 요청을 추적
 
 // API 인증 토큰 발급
 async function getAccessToken() {
-  // 토큰이 유효한 경우 바로 반환
+  // 1. 메모리 캐시 확인
   if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
     return accessToken;
   }
 
-  // 이미 토큰 발급 요청이 진행 중인 경우, 해당 요청을 기다림
+  // 2. chrome.storage에서 유효한 토큰 확인
+  try {
+    const storedTokenInfo = await chrome.storage.local.get([
+      "accessToken",
+      "tokenExpiry",
+    ]);
+    if (
+      storedTokenInfo.accessToken &&
+      storedTokenInfo.tokenExpiry &&
+      Date.now() < storedTokenInfo.tokenExpiry
+    ) {
+      console.log("저장된 토큰을 사용합니다.");
+      accessToken = storedTokenInfo.accessToken;
+      tokenExpiry = storedTokenInfo.tokenExpiry;
+      return accessToken;
+    }
+  } catch (e) {
+    console.error("Storage에서 토큰 로딩 중 오류:", e);
+  }
+
+  // 3. 토큰 발급 요청이 이미 진행 중인지 확인
   if (tokenRequestPromise) {
     console.log("토큰 발급 요청이 진행 중입니다. 기존 요청을 기다립니다.");
     return await tokenRequestPromise;
   }
 
-  // 새로운 토큰 발급 요청 시작
+  // 4. 새로운 토큰 발급 요청 시작
   tokenRequestPromise = (async () => {
     try {
       console.log("새로운 토큰 발급 요청 시작...");
@@ -57,8 +78,12 @@ async function getAccessToken() {
 
       if (data.access_token) {
         accessToken = data.access_token;
-        tokenExpiry = Date.now() + data.expires_in * 1000;
-        console.log("토큰 발급 성공:", {
+        // 실제 만료 시간보다 5분 일찍 만료되도록 설정하여 안정성 확보
+        tokenExpiry = Date.now() + (data.expires_in - 300) * 1000;
+
+        await chrome.storage.local.set({ accessToken, tokenExpiry });
+
+        console.log("토큰 발급 및 저장 성공:", {
           expires_in: data.expires_in,
           expiry_time: new Date(tokenExpiry).toLocaleString(),
         });
@@ -68,6 +93,10 @@ async function getAccessToken() {
       }
     } catch (error) {
       console.error("토큰 발급 중 오류:", error);
+      // 오류 발생 시 저장된 토큰 정보 삭제
+      await chrome.storage.local.remove(["accessToken", "tokenExpiry"]);
+      accessToken = null;
+      tokenExpiry = null;
       throw error;
     } finally {
       // 요청 완료 후 Promise 초기화
@@ -81,24 +110,94 @@ async function getAccessToken() {
 // 실시간 접속키 발급
 async function getApprovalKey() {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/oauth2/Approval`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    console.log("실시간 접속키 발급 시도...");
+    console.log("API 키 확인:", {
+      appkey: API_CONFIG.APP_KEY ? "설정됨" : "설정되지 않음",
+      secretkey: API_CONFIG.APP_SECRET ? "설정됨" : "설정되지 않음",
+    });
+
+    // 가능한 엔드포인트들
+    const endpoints = [
+      "/oauth2/Approval",
+      "/oauth2/approval",
+      "/oauth2/tokenP/approval",
+      "/oauth2/approval/token",
+      "/oauth2/realtime/approval",
+    ];
+
+    // 가능한 파라미터 조합들
+    const paramCombinations = [
+      {
+        grant_type: "client_credentials",
+        appkey: API_CONFIG.APP_KEY,
+        secretkey: API_CONFIG.APP_SECRET,
       },
-      body: JSON.stringify({
+      {
         grant_type: "client_credentials",
         appkey: API_CONFIG.APP_KEY,
         appsecret: API_CONFIG.APP_SECRET,
-      }),
-    });
-    const data = await response.json();
-    if (data.approval_key) {
-      console.log("실시간 접속키 발급 성공:", data.approval_key);
-      return data.approval_key;
-    } else {
-      throw new Error("실시간 접속키 발급 실패: " + JSON.stringify(data));
+      },
+      {
+        grant_type: "client_credentials",
+        app_key: API_CONFIG.APP_KEY,
+        app_secret: API_CONFIG.APP_SECRET,
+      },
+    ];
+
+    for (const endpoint of endpoints) {
+      for (const params of paramCombinations) {
+        try {
+          console.log(`엔드포인트 시도: ${endpoint}`);
+          console.log("파라미터:", JSON.stringify(params, null, 2));
+
+          const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(params),
+          });
+
+          console.log("응답 상태:", response.status, response.statusText);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("HTTP 오류 응답:", errorText);
+            continue; // 다음 조합 시도
+          }
+
+          const data = await response.json();
+          console.log("응답 데이터:", data);
+          console.log("응답 데이터 구조:", {
+            output: data.output,
+            outputLength: data.output ? data.output.length : "undefined",
+            outputType: typeof data.output,
+            hasOutput: "output" in data,
+            hasOutput2: "output2" in data,
+            keys: Object.keys(data),
+          });
+
+          // approval_key가 있으면 그것을 사용
+          if (data.approval_key) {
+            console.log("실시간 접속키 발급 성공:", data.approval_key);
+            return data.approval_key;
+          }
+
+          // approval_key가 없고 access_token이 있으면 경고
+          if (data.access_token) {
+            console.warn(
+              "access_token은 받았지만 approval_key가 없습니다. 실시간 데이터가 작동하지 않을 수 있습니다."
+            );
+            return data.access_token;
+          }
+        } catch (error) {
+          console.error(`엔드포인트 ${endpoint} 시도 실패:`, error.message);
+          continue; // 다음 조합 시도
+        }
+      }
     }
+
+    throw new Error("모든 엔드포인트와 파라미터 조합 시도 실패");
   } catch (error) {
     console.error("실시간 접속키 발급 중 오류:", error);
     throw error;
@@ -168,6 +267,66 @@ async function getMultipleStockPrices(stockCodes, marketCode) {
   }
 }
 
+// 거래량 순위 조회
+async function fetchTopVolumeStocks(marketCode = "KOSPI") {
+  const token = await getAccessToken();
+  const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.VOLUME_RANK}`;
+
+  // 한국투자증권 API 문서에 따른 올바른 파라미터
+  const params = new URLSearchParams({
+    FID_COND_MRKT_DIV_CODE: marketCode === "KOSPI" ? "J" : "K", // J: KOSPI, K: KOSDAQ
+    FID_COND_SCR_DIV_CODE: "20171", // 거래량 순위 화면
+    FID_INPUT_ISCD: "0000", // 전체
+    FID_DIV_CLS_CODE: "0", // 전체
+    FID_BLNG_CLS_CODE: "0", // 평균거래량
+    FID_TRGT_CLS_CODE: "111111111", // 모든 증거금 비율
+    FID_TRGT_EXLS_CLS_CODE: "0000000000", // 제외 대상 없음
+    FID_INPUT_PRICE_1: "", // 전체 가격
+    FID_INPUT_PRICE_2: "", // 전체 가격
+    FID_VOL_CNT: "", // 전체 거래량
+    FID_INPUT_DATE_1: "", // 공란
+  });
+
+  console.log("거래량 순위 조회 요청 파라미터:", params.toString());
+
+  const response = await fetch(`${url}?${params}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
+      appkey: API_CONFIG.APP_KEY,
+      appsecret: API_CONFIG.APP_SECRET,
+      tr_id: "FHPST01710000",
+    },
+  });
+
+  console.log("응답 상태:", response.status, response.statusText);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP 오류! status: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log("응답 데이터:", data);
+  console.log("응답 데이터 구조:", {
+    output: data.output,
+    outputLength: data.output ? data.output.length : "undefined",
+    outputType: typeof data.output,
+    hasOutput: "output" in data,
+    hasOutput2: "output2" in data,
+    keys: Object.keys(data),
+  });
+
+  if (data.rt_cd !== "0") {
+    throw new Error(`API 오류: ${data.msg1}`);
+  }
+
+  console.log("거래량 순위 조회 성공!");
+  // 거래량 상위 종목 목록 반환 (output에 있음)
+  return data.output;
+}
+
 // WebSocket 실시간 데이터 관리
 class RealTimeDataManager {
   constructor() {
@@ -225,23 +384,41 @@ class RealTimeDataManager {
 
     try {
       // 한국투자증권 Open API 실시간 구독 메시지 형식
+      // 여러 tr_id를 시도하여 실제 데이터를 받을 수 있는 tr_id 찾기
+      const trIds = [
+        "H0STCNT0", // 주식 체결
+        "H0STASP0", // 주식 호가
+        "H1_", // 주식 현재가
+        "FHKST01010300", // 주식 현재가 체결 (REST API와 동일한 형식)
+        "H0STCNT1", // 주식 체결 통보
+        "H0STASP1", // 주식 호가 통보
+      ];
+
+      // 첫 번째 tr_id로 구독 시도
+      const tr_id = trIds[0]; // H0STCNT0
+
       const message = {
         header: {
-          approval_key: approval_key,
+          approval_key: approval_key, // 또는 access_token
           custtype: "P",
           tr_type: "1", // 1: 등록
           "content-type": "utf-8",
         },
         body: {
           input: {
-            // 최종적으로 UI 업데이트에 필요한 '주식 체결' 정보를 구독합니다.
-            tr_id: "H0STCNT0", // H0STCNT0: 주식체결
+            tr_id: tr_id,
             tr_key: stockCode,
           },
         },
       };
 
-      console.log(`주식 구독 메시지 전송 (주식체결): ${stockCode}`, message);
+      console.log(`주식 구독 메시지 전송 (${tr_id}): ${stockCode}`, {
+        ...message,
+        header: {
+          ...message.header,
+          approval_key: approval_key ? "***" : "undefined",
+        },
+      });
       this.ws.send(JSON.stringify(message));
       this.subscribedStocks.add(stockCode);
       console.log(`주식 구독 완료: ${stockCode}`);
@@ -260,7 +437,7 @@ class RealTimeDataManager {
       // 구독 해제 메시지 (tr_type: "2")
       const message = {
         header: {
-          approval_key: approval_key,
+          approval_key: approval_key, // 또는 access_token
           custtype: "P",
           tr_type: "2", // 2: 해제
           "content-type": "utf-8",
@@ -283,6 +460,8 @@ class RealTimeDataManager {
 
   handleRealTimeData(message) {
     try {
+      console.log("WebSocket 메시지 수신:", message);
+
       // 1. JSON 형식 메시지 처리 (초기 응답, PINGPONG 등)
       if (message.startsWith("{")) {
         const data = JSON.parse(message);
@@ -308,14 +487,18 @@ class RealTimeDataManager {
 
       // 2. 파이프(|)로 구분된 실시간 데이터 처리
       const parts = message.split("|");
+      console.log("파이프로 구분된 데이터:", parts);
+
       if (parts.length < 4) {
         console.warn("처리할 수 없는 실시간 데이터 형식:", message);
         return;
       }
 
       const flag = parts[0]; // 0: 성공
-      const tr_id = parts[1]; // H0STASP0 (주식 호가)
+      const tr_id = parts[1]; // H0STASP0 (주식 호가) 또는 H0STCNT0 (주식 체결)
       const dataFieldsStr = parts[3];
+
+      console.log(`실시간 데이터 분석: flag=${flag}, tr_id=${tr_id}`);
 
       if (flag !== "0") {
         console.warn("오류 수신 (실시간):", message);
@@ -341,6 +524,92 @@ class RealTimeDataManager {
 
       // H0STCNT0 (주식 체결) 데이터 처리
       if (tr_id === "H0STCNT0") {
+        const dataFields = dataFieldsStr.split("^");
+        const stockCode = dataFields[0]; // 종목코드
+        const price = dataFields[2]; // 현재가
+        const sign = dataFields[3]; // 전일대비부호
+        const change_price = dataFields[4]; // 전일대비
+        const change_rate = dataFields[5]; // 전일대비율
+        const volume = dataFields[10]; // 누적거래량
+
+        const realTimeData = {
+          price: parseFloat(price) || 0,
+          change_rate: parseFloat(change_rate) || 0,
+          change_price: parseFloat(change_price) || 0,
+          volume: parseFloat(volume) || 0,
+          timestamp: Date.now(),
+        };
+
+        // 4:하한, 5:하락일 경우 음수 처리
+        if (sign === "4" || sign === "5") {
+          realTimeData.change_price = -Math.abs(realTimeData.change_price);
+          realTimeData.change_rate = -Math.abs(realTimeData.change_rate);
+        }
+
+        console.log(`실시간 데이터 처리 (${stockCode}):`, realTimeData);
+
+        // popup으로 실시간 데이터 전송
+        chrome.runtime
+          .sendMessage({
+            type: "REAL_TIME_UPDATE",
+            data: {
+              code: stockCode,
+              ...realTimeData,
+            },
+          })
+          .catch((error) => {
+            if (!error.message.includes("Receiving end does not exist")) {
+              console.error("실시간 데이터 전송 오류:", error);
+            }
+          });
+        return;
+      }
+
+      // H1_ (주식 현재가) 데이터 처리
+      if (tr_id === "H1_") {
+        const dataFields = dataFieldsStr.split("^");
+        const stockCode = dataFields[0]; // 종목코드
+        const price = dataFields[2]; // 현재가
+        const sign = dataFields[3]; // 전일대비부호
+        const change_price = dataFields[4]; // 전일대비
+        const change_rate = dataFields[5]; // 전일대비율
+        const volume = dataFields[10]; // 누적거래량
+
+        const realTimeData = {
+          price: parseFloat(price) || 0,
+          change_rate: parseFloat(change_rate) || 0,
+          change_price: parseFloat(change_price) || 0,
+          volume: parseFloat(volume) || 0,
+          timestamp: Date.now(),
+        };
+
+        // 4:하한, 5:하락일 경우 음수 처리
+        if (sign === "4" || sign === "5") {
+          realTimeData.change_price = -Math.abs(realTimeData.change_price);
+          realTimeData.change_rate = -Math.abs(realTimeData.change_rate);
+        }
+
+        console.log(`실시간 데이터 처리 (${stockCode}):`, realTimeData);
+
+        // popup으로 실시간 데이터 전송
+        chrome.runtime
+          .sendMessage({
+            type: "REAL_TIME_UPDATE",
+            data: {
+              code: stockCode,
+              ...realTimeData,
+            },
+          })
+          .catch((error) => {
+            if (!error.message.includes("Receiving end does not exist")) {
+              console.error("실시간 데이터 전송 오류:", error);
+            }
+          });
+        return;
+      }
+
+      // FHKST01010300 (주식 현재가 체결) 데이터 처리
+      if (tr_id === "FHKST01010300") {
         const dataFields = dataFieldsStr.split("^");
         const stockCode = dataFields[0]; // 종목코드
         const price = dataFields[2]; // 현재가
@@ -413,22 +682,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("백그라운드 스크립트 메시지 수신:", message);
 
   switch (message.type) {
+    case "GET_TOP_VOLUME_STOCKS":
+      fetchTopVolumeStocks(message.data.marketCode)
+        .then((data) => sendResponse({ success: true, data }))
+        .catch((error) =>
+          sendResponse({ success: false, error: error.message })
+        );
+      return true; // 비동기 응답
     case "GET_STOCK_DATA":
       handleGetStockData(message.data, sendResponse);
-      break;
+      return true; // 비동기 응답을 위해 true 반환
     case "GET_MULTIPLE_STOCKS":
       const { stockCodes, marketCode } = message.data;
       handleGetMultipleStocks(stockCodes, marketCode, sendResponse);
-      break;
-    case "START_REALTIME":
+      return true; // 비동기 응답을 위해 true 반환
+    case "START_REAL_TIME":
       handleStartRealTime(message.data, sendResponse);
-      break;
+      return true; // 비동기 응답을 위해 true 반환
     case "STOP_REAL_TIME":
       handleStopRealTime(sendResponse);
-      break;
+      return true; // 비동기 응답을 위해 true 반환
     case "UPDATE_API_KEYS":
       handleUpdateApiKeys(message.data, sendResponse);
-      break;
+      return true; // 비동기 응답을 위해 true 반환
   }
 });
 
@@ -460,16 +736,61 @@ async function handleStartRealTime(stockCodes, sendResponse) {
   try {
     console.log("실시간 데이터 관리 시작:", stockCodes);
 
-    if (!isRealTimeConnected) {
-      console.log("WebSocket 연결 시도...");
-      await realTimeManager.connect();
-      isRealTimeConnected = true;
-      console.log("WebSocket 연결 성공");
+    // API 키 확인
+    if (!API_CONFIG.APP_KEY || !API_CONFIG.APP_SECRET) {
+      const errorMsg =
+        "API 키가 설정되지 않았습니다. 팝업에서 API 키를 설정해주세요.";
+      console.error(errorMsg);
+      sendResponse({ success: false, error: errorMsg });
+      return;
     }
 
-    const approval_key = await getApprovalKey();
+    // WebSocket 연결
+    if (!isRealTimeConnected) {
+      console.log("WebSocket 연결 시도...");
+      try {
+        await realTimeManager.connect();
+        isRealTimeConnected = true;
+        console.log("WebSocket 연결 성공");
+      } catch (error) {
+        const errorMsg = `WebSocket 연결 실패: ${error.message}`;
+        console.error(errorMsg);
+        sendResponse({ success: false, error: errorMsg });
+        return;
+      }
+    }
+
+    // 실시간 접속키 또는 access_token 발급
+    let approval_key = null;
+    try {
+      console.log("실시간 접속키 발급 시도...");
+      approval_key = await getApprovalKey();
+      if (!approval_key) {
+        throw new Error("실시간 접속키 발급에 실패했습니다.");
+      }
+      console.log("실시간 접속키 발급 성공");
+    } catch (error) {
+      console.warn(
+        "실시간 접속키 발급 실패, access_token 사용:",
+        error.message
+      );
+      // 실시간 접속키 발급 실패 시 access_token 사용
+      try {
+        approval_key = await getAccessToken();
+        console.log("access_token 사용:", approval_key ? "성공" : "실패");
+      } catch (tokenError) {
+        const errorMsg = `토큰 발급 실패: ${tokenError.message}`;
+        console.error(errorMsg);
+        sendResponse({ success: false, error: errorMsg });
+        return;
+      }
+    }
+
     if (!approval_key) {
-      throw new Error("실시간 접속키 발급에 실패했습니다.");
+      const errorMsg = "실시간 데이터 구독을 위한 키를 발급받을 수 없습니다.";
+      console.error(errorMsg);
+      sendResponse({ success: false, error: errorMsg });
+      return;
     }
 
     const newStockSet = new Set(stockCodes);
@@ -511,14 +832,23 @@ async function handleStartRealTime(stockCodes, sendResponse) {
     realTimeData = newRealTimeData;
 
     console.log("실시간 데이터 구독 관리 완료");
-    sendResponse({ success: true, message: "실시간 데이터 구독 관리 완료" });
+    console.log("sendResponse 호출 전");
+    const response = { success: true, message: "실시간 데이터 구독 관리 완료" };
+    console.log("전송할 응답:", response);
+    sendResponse(response);
+    console.log("sendResponse 호출 완료");
   } catch (error) {
     console.error("실시간 데이터 처리 시작 중 오류:", error);
-    sendResponse({
+    console.log("오류 발생 시 sendResponse 호출 전");
+    const errorResponse = {
       success: false,
       error: error.message,
-      details: "WebSocket 연결 또는 주식 구독 중 오류가 발생했습니다.",
-    });
+      details:
+        error.stack || "WebSocket 연결 또는 주식 구독 중 오류가 발생했습니다.",
+    };
+    console.log("전송할 오류 응답:", errorResponse);
+    sendResponse(errorResponse);
+    console.log("오류 발생 시 sendResponse 호출 완료");
   }
 }
 
