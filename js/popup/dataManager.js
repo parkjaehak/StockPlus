@@ -57,15 +57,12 @@ export async function fetchStockData(stockCodes, marketCode) {
 // 범용 API 호출 함수
 export async function callApi(type, data) {
   try {
-    console.log(`API 호출 시작: ${type}`, data);
-
     const response = await chrome.runtime.sendMessage({
       type: type,
       data: data,
     });
 
     if (response && response.success) {
-      console.log(`API 호출 성공: ${type}`);
       return response.data || [];
     } else {
       const errorMessage = response?.error || "API 응답 오류";
@@ -98,18 +95,10 @@ export async function startRealTimeData(stockCodes) {
 
   const attemptConnection = async () => {
     try {
-      console.log(
-        `실시간 데이터 연결 시도 ${retryCount + 1}/${maxRetries}:`,
-        stockCodes
-      );
-
       // callApi 함수 사용
       const response = await callApi("START_REAL_TIME", stockCodes);
 
-      console.log("background.js로부터 받은 응답:", response);
-
       if (response && response.success) {
-        console.log("실시간 데이터 시작 성공:", response.message);
         return true;
       } else {
         console.error(
@@ -140,7 +129,6 @@ export async function startRealTimeData(stockCodes) {
         );
         return false;
       }
-
       throw error;
     }
   };
@@ -154,7 +142,6 @@ export async function startRealTimeData(stockCodes) {
 
       retryCount++;
       if (retryCount < maxRetries) {
-        console.log(`${retryCount * 2}초 후 재시도합니다...`);
         await new Promise((resolve) => setTimeout(resolve, retryCount * 2000));
       }
     } catch (error) {
@@ -168,8 +155,6 @@ export async function startRealTimeData(stockCodes) {
         );
         break;
       }
-
-      console.log(`${retryCount * 2}초 후 재시도합니다...`);
       await new Promise((resolve) => setTimeout(resolve, retryCount * 2000));
     }
   }
@@ -232,7 +217,6 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
         setFilteredStocks(stocks);
       } else {
         setFilteredStocks([]);
-        showNotification("검색 결과를 가져오는 데 실패했습니다.", "error");
       }
     } else {
       setFilteredStocks([]);
@@ -244,7 +228,6 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
     stopRealTimeData();
   } catch (error) {
     console.error("검색 중 오류:", error);
-    showNotification("검색 중 오류가 발생했습니다.", "error");
   } finally {
     showLoading(false);
   }
@@ -286,14 +269,12 @@ export async function filterByMarket(marketSelect) {
     } else {
       console.error("시가총액 상위 종목 조회 실패: 데이터가 없습니다.");
       setFilteredStocks([]);
-      showNotification("데이터를 불러오는 데 실패했습니다.", "error");
     }
 
     renderTable(getFilteredStocks().slice(0, getPageSize()));
     updateHeaderArrows();
   } catch (error) {
     console.error("시가총액 상위 종목 조회 중 오류:", error);
-    showNotification("데이터를 불러오는 중 오류가 발생했습니다.", "error");
   } finally {
     showLoading(false);
   }

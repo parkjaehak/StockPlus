@@ -23,7 +23,6 @@ async function initialRender() {
 // 실시간 데이터 업데이트 리스너
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "REAL_TIME_UPDATE") {
-    console.log("실시간 데이터 수신 (popup):", message.data);
     const { code, price, change_rate, change_price, volume } = message.data;
 
     // 실시간 데이터 저장
