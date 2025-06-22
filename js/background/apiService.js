@@ -7,6 +7,7 @@ export class ApiService {
     this.tokenManager = tokenManager;
   }
 
+  // 시가총액 순위 조회
   async fetchTopRankedStocks(marketCode = "KOSPI") {
     const token = await this.tokenManager.getAccessToken();
     const params = this.buildTopRankParams(marketCode);
@@ -22,7 +23,8 @@ export class ApiService {
     return this.handleApiResponse(response);
   }
 
-  async fetchMultipleStocks(stockCodes, marketCode) {
+  // 종목 조회 (검색 시 사용)
+  async fetchMultipleStocks(stockCodes) {
     const token = await this.tokenManager.getAccessToken();
     const results = [];
 

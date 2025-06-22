@@ -6,14 +6,12 @@ import {
   setRealTimeData,
   updateStockRow,
 } from "./uiManager.js";
-
 import {
   filterStocks,
   filterByMarket,
   stopRealTimeData,
   debounceSearch,
 } from "./dataManager.js";
-
 import { stockSymbols } from "./stockSymbols.js";
 
 // 초기화 함수
@@ -29,13 +27,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { code, price, change_rate, change_price, volume } = message.data;
 
     // 실시간 데이터 저장
-    setRealTimeData(code, {
-      price,
-      change_rate,
-      change_price,
-      volume,
-    });
-
+    setRealTimeData(code, { price, change_rate, change_price, volume });
     // UI 업데이트
     updateStockRow(code);
   }

@@ -13,6 +13,10 @@ import {
 // API 관련 함수들
 export async function fetchStockData(stockCodes, marketCode) {
   try {
+    console.log(
+      `종목 데이터 조회 시작: ${stockCodes.length}개 종목, 마켓: ${marketCode}`
+    );
+
     const response = await chrome.runtime.sendMessage({
       type: "GET_MULTIPLE_STOCKS",
       data: {
@@ -22,17 +26,72 @@ export async function fetchStockData(stockCodes, marketCode) {
     });
 
     if (response && response.success) {
-      return response.data;
+      console.log(
+        `종목 데이터 조회 성공: ${response.data?.length || 0}개 종목`
+      );
+      return response.data || [];
     } else {
-      throw new Error(response?.error || "API 응답 오류");
+      const errorMessage = response?.error || "API 응답 오류";
+      console.error("API 응답 실패:", errorMessage);
+      showNotification(errorMessage, "error");
+      throw new Error(errorMessage);
     }
   } catch (error) {
     console.error("API 데이터 조회 실패:", error);
-    // API 실패시 mock 데이터 사용
+
+    // Background script 연결 오류인 경우
+    if (error.message.includes("Receiving end does not exist")) {
+      showNotification(
+        "확장 프로그램이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
+        "warning"
+      );
+    } else {
+      showNotification("데이터를 가져오는 중 오류가 발생했습니다.", "error");
+    }
+
+    // API 실패시 빈 배열 반환
     return [];
   }
 }
 
+// 범용 API 호출 함수
+export async function callApi(type, data) {
+  try {
+    console.log(`API 호출 시작: ${type}`, data);
+
+    const response = await chrome.runtime.sendMessage({
+      type: type,
+      data: data,
+    });
+
+    if (response && response.success) {
+      console.log(`API 호출 성공: ${type}`);
+      return response.data || [];
+    } else {
+      const errorMessage = response?.error || "API 응답 오류";
+      console.error(`API 응답 실패 (${type}):`, errorMessage);
+      showNotification(errorMessage, "error");
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    console.error(`API 호출 실패 (${type}):`, error);
+
+    // Background script 연결 오류인 경우
+    if (error.message.includes("Receiving end does not exist")) {
+      showNotification(
+        "확장 프로그램이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
+        "warning"
+      );
+    } else {
+      showNotification("데이터를 가져오는 중 오류가 발생했습니다.", "error");
+    }
+
+    // API 실패시 빈 배열 반환
+    return [];
+  }
+}
+
+// 실시간 데이터 시작
 export async function startRealTimeData(stockCodes) {
   const maxRetries = 3;
   let retryCount = 0;
@@ -44,10 +103,8 @@ export async function startRealTimeData(stockCodes) {
         stockCodes
       );
 
-      const response = await chrome.runtime.sendMessage({
-        type: "START_REAL_TIME",
-        data: stockCodes,
-      });
+      // callApi 함수 사용
+      const response = await callApi("START_REAL_TIME", stockCodes);
 
       console.log("background.js로부터 받은 응답:", response);
 
@@ -118,17 +175,14 @@ export async function startRealTimeData(stockCodes) {
   }
 }
 
+// 실시간 데이터 중지
 export function stopRealTimeData() {
-  chrome.runtime
-    .sendMessage({
-      type: "STOP_REAL_TIME",
-    })
-    .catch((error) => {
-      console.error("실시간 데이터 중지 오류:", error);
-    });
+  callApi("STOP_REAL_TIME", {}).catch((error) => {
+    console.error("실시간 데이터 중지 오류:", error);
+  });
 }
 
-// 검색 및 필터링 함수들
+// 종목 검색 (키워드 기반)
 export async function filterStocks(searchInput, marketSelect, stockSymbols) {
   const keyword = searchInput.value.trim().toLowerCase();
 
@@ -140,23 +194,26 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
 
   showLoading(true);
   try {
-    // KOSPI와 KOSDAQ 목록을 합쳐서 검색
-    const allSymbols = [...stockSymbols.KOSPI, ...stockSymbols.KOSDAQ];
-    const matchedStocks = allSymbols.filter((s) =>
-      s.name.toLowerCase().includes(keyword)
-    );
+    // 선택된 마켓에 따라 해당 마켓의 종목만 검색
+    const selectedMarket = marketSelect.value;
+    const marketSymbols = stockSymbols[selectedMarket] || [];
+
+    // 종목명과 종목코드 모두에서 검색
+    const matchedStocks = marketSymbols.filter((s) => {
+      const nameMatch = s.name.toLowerCase().includes(keyword);
+      const codeMatch = s.code.includes(keyword);
+      return nameMatch || codeMatch;
+    });
 
     if (matchedStocks.length > 0) {
       const stockCodes = matchedStocks.map((s) => s.code);
       const marketCode = marketSelect.value;
 
-      const response = await chrome.runtime.sendMessage({
-        type: "GET_MULTIPLE_STOCKS",
-        data: { stockCodes, marketCode },
-      });
+      // fetchStockData 함수 사용
+      const responseData = await fetchStockData(stockCodes, marketCode);
 
-      if (response && response.success && Array.isArray(response.data)) {
-        const stocks = response.data.map((d) => ({
+      if (Array.isArray(responseData) && responseData.length > 0) {
+        const stocks = responseData.map((d) => ({
           name: d.stck_shrn_iscd, // API 응답에 이름이 없으므로 코드를 사용
           code: d.stck_shrn_iscd,
           market: marketCode,
@@ -193,18 +250,19 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
   }
 }
 
+// 마켓별 필터링 (KOSPI/KOSDAQ)
 export async function filterByMarket(marketSelect) {
   const market = marketSelect.value;
   showLoading(true);
 
   try {
-    const response = await chrome.runtime.sendMessage({
-      type: "GET_TOP_VOLUME_STOCKS",
-      data: { marketCode: market },
+    // callApi 함수 사용
+    const responseData = await callApi("GET_TOP_VOLUME_STOCKS", {
+      marketCode: market,
     });
 
-    if (response && response.success && Array.isArray(response.data)) {
-      const stocks = response.data.map((d) => ({
+    if (Array.isArray(responseData) && responseData.length > 0) {
+      const stocks = responseData.map((d) => ({
         name: d.hts_kor_isnm,
         code: d.mksc_shrn_iscd,
         market: market,
@@ -226,10 +284,7 @@ export async function filterByMarket(marketSelect) {
         startRealTimeData(stockCodes);
       }
     } else {
-      console.error(
-        "시가총액 상위 종목 조회 실패:",
-        (response && response.error) || "데이터 형식이 올바르지 않습니다."
-      );
+      console.error("시가총액 상위 종목 조회 실패: 데이터가 없습니다.");
       setFilteredStocks([]);
       showNotification("데이터를 불러오는 데 실패했습니다.", "error");
     }

@@ -31,8 +31,12 @@ export class RealTimeManager {
       this.handleWebSocketMessage(event);
     };
 
-    this.ws.onclose = () => {
-      console.log("WebSocket 연결 종료.");
+    this.ws.onclose = (event) => {
+      console.log("WebSocket 연결 종료:", {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+      });
       this.handleReconnect(approvalKey);
     };
 

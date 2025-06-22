@@ -53,7 +53,7 @@ export class MessageHandler {
   }
 
   async handleGetMultipleStocks(message) {
-    const { stockCodes, marketCode } = message.data;
-    return await this.apiService.fetchMultipleStocks(stockCodes, marketCode);
+    const { stockCodes } = message.data;
+    return await this.apiService.fetchMultipleStocks(stockCodes);
   }
 }
