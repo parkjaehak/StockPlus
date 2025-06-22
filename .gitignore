@@ -1,0 +1,42 @@
+# API 키 및 민감한 정보
+*.key
+*.secret
+.env
+.env.local
+.env.production
+config.local.js
+js/config.js
+
+# 로그 파일
+*.log
+logs/
+
+# 임시 파일
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node.js (만약 사용한다면)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 빌드 결과물
+dist/
+build/
+*.zip
+
+# 테스트 커버리지
+coverage/
+
+# Chrome Extension 개발 관련
+*.crx
+*.pem 

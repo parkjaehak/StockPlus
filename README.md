@@ -12,7 +12,7 @@
 - 📈 **마켓별 필터링**: KOSPI, KOSDAQ 선택
 - ⬆️ **컬럼별 정렬**: 현재가, 전일대비, 거래대금 기준 정렬
 - 📜 **무한 스크롤**: 페이지네이션 없이 스크롤로 데이터 로드
-- ⚙️ **API 설정**: UI에서 API 키 설정 가능
+- 🔐 **공통 API 키**: 개발자가 제공하는 공통 API 키 사용
 
 ## 설치 방법
 
@@ -22,25 +22,41 @@
 4. '압축해제된 확장 프로그램을 로드' 클릭 후 이 폴더 선택
 5. 확장 프로그램 아이콘 클릭 시 팝업이 나타납니다.
 
-## 한국투자증권 Open API 설정
+## 🔐 API 키 설정
 
-### 1. API 키 발급
+### ⚠️ 중요: API 키 보안
 
-1. [한국투자증권 개발자센터](https://apiportal.koreainvestment.com/) 접속
-2. 회원가입 및 로그인
-3. "Open API 신청" 메뉴에서 API 신청
-4. APP KEY와 APP SECRET 발급
+- **API 키는 절대 Git에 커밋하지 마세요!**
+- `js/config.js` 파일이 `.gitignore`에 포함되어 있습니다
+- 개발자의 공통 API 키를 사용하므로 사용자가 별도 설정할 필요가 없습니다
 
-### 2. API 키 설정
+### 개발자용 설정
 
-1. 확장 프로그램 팝업에서 "설정" 버튼 클릭
-2. APP KEY와 APP SECRET 입력
-3. "저장" 버튼 클릭
+1. `js/config.js` 파일에 API 키를 설정합니다:
 
-### 3. API 권한 설정
+```javascript
+export const API_CONFIG = {
+  APP_KEY: "YOUR_APP_KEY_HERE",
+  APP_SECRET: "YOUR_APP_SECRET_HERE",
+  BASE_URL: "https://openapi.koreainvestment.com:9443",
+  WS_URL: "ws://ops.koreainvestment.com:21000",
+};
+```
 
-- 실시간 데이터 사용을 위해 한국투자증권에서 실시간 API 권한 승인 필요
-- 개발자센터에서 실시간 API 신청 및 승인 절차 진행
+2. API 키 발급:
+
+   - [한국투자증권 개발자센터](https://apiportal.koreainvestment.com/) 접속
+   - 회원가입 및 로그인
+   - "Open API 신청" 메뉴에서 API 신청
+   - APP KEY와 APP SECRET 발급
+
+3. 실시간 API 권한 설정:
+   - 개발자센터에서 실시간 API 신청 및 승인 절차 진행
+
+### 사용자용 설정
+
+- **별도 설정 불필요**: 개발자가 제공하는 공통 API 키를 자동으로 사용
+- **즉시 사용 가능**: 설치 후 바로 주식 시세 확인 가능
 
 ## 프로젝트 구조
 
@@ -51,7 +67,7 @@ stock-view-chrome/
 ├── popup.html            # 팝업 UI
 ├── popup.js              # 팝업 로직
 ├── js/
-│   ├── config.js         # API 설정 및 엔드포인트
+│   ├── config.js         # API 설정 및 엔드포인트 (Git 제외)
 │   ├── tokenManager.js   # 토큰 및 승인키 관리
 │   ├── apiService.js     # API 호출 서비스
 │   ├── realTimeManager.js # 실시간 데이터 관리
@@ -59,6 +75,7 @@ stock-view-chrome/
 │   └── stockSymbols.js   # 주식 심볼 데이터
 ├── css/
 │   └── style.css         # 스타일시트
+├── .gitignore           # Git 제외 파일 설정
 └── README.md
 ```
 
@@ -66,9 +83,9 @@ stock-view-chrome/
 
 ### 📁 js/config.js
 
-- API 설정 정보 (APP_KEY, APP_SECRET, BASE_URL 등)
+- API 설정 정보 (개발자 공통 키)
 - API 엔드포인트 정의
-- 설정 정보의 단일 진실 소스
+- Git에서 제외되어 보안 유지
 
 ### 📁 js/tokenManager.js
 
@@ -125,7 +142,7 @@ export const API_CONFIG = {
   APP_KEY: "YOUR_APP_KEY_HERE",
   APP_SECRET: "YOUR_APP_SECRET_HERE",
   BASE_URL: "https://openapi.koreainvestment.com:9443",
-  // ...
+  WS_URL: "ws://ops.koreainvestment.com:21000",
 };
 ```
 
@@ -142,6 +159,7 @@ export const API_CONFIG = {
 - **유지보수성**: 특정 기능 수정 시 해당 모듈만 수정
 - **테스트 용이성**: 각 모듈을 독립적으로 테스트 가능
 - **재사용성**: 모듈을 다른 프로젝트에서도 사용 가능
+- **사용자 편의성**: 별도 설정 없이 즉시 사용 가능
 
 ### 에러 처리
 
@@ -149,11 +167,15 @@ export const API_CONFIG = {
 - 네트워크 오류시 사용자에게 알림
 - 실시간 연결 끊김시 자동 재연결 시도
 
-## 주의사항
+## 보안 주의사항
 
-1. **API 호출 제한**: 한국투자증권 API는 호출 횟수 제한이 있습니다.
-2. **실시간 데이터**: 실시간 데이터는 거래시간에만 제공됩니다.
-3. **API 키 보안**: API 키는 안전하게 관리해야 합니다.
+1. **API 키 보안**:
+
+   - `js/config.js` 파일이 `.gitignore`에 포함되어 Git에 올라가지 않음
+   - 개발자만 API 키를 관리하고 사용자들은 공통 키 사용
+
+2. **API 호출 제한**: 한국투자증권 API는 호출 횟수 제한이 있습니다.
+3. **실시간 데이터**: 실시간 데이터는 거래시간에만 제공됩니다.
 4. **개발자 모드**: 개발 중에는 크롬 개발자 모드가 필요합니다.
 
 ## 참고 자료

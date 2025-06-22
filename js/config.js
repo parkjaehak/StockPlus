@@ -1,5 +1,6 @@
 // config.js - API 설정 및 엔드포인트
 
+// API 설정 (개발자용 공통 키)
 export const API_CONFIG = {
   APP_KEY: "PSt13mFcGxsWaa7rsELOKngU9uLOVSgeVnpO",
   APP_SECRET:
@@ -8,6 +9,7 @@ export const API_CONFIG = {
   WS_URL: "ws://ops.koreainvestment.com:21000",
 };
 
+// API 엔드포인트
 export const API_ENDPOINTS = {
   TOKEN: "/oauth2/tokenP",
   APPROVAL_KEY: "/oauth2/Approval",
