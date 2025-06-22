@@ -5,7 +5,7 @@
 .env.local
 .env.production
 config.local.js
-js/config.js
+js/background/env.js
 
 # 로그 파일
 *.log

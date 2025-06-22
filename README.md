@@ -27,55 +27,67 @@
 ### ⚠️ 중요: API 키 보안
 
 - **API 키는 절대 Git에 커밋하지 마세요!**
-- `js/config.js` 파일이 `.gitignore`에 포함되어 있습니다
-- 개발자의 공통 API 키를 사용하므로 사용자가 별도 설정할 필요가 없습니다
+- `js/background/env.js` 파일이 `.gitignore`에 포함되어 있습니다
+- 실제 API 키가 포함된 파일은 Git에 올라가지 않습니다
 
-### 개발자용 설정
+### 설정 방법
 
-1. `js/config.js` 파일에 API 키를 설정합니다:
+1. **예시 파일 복사**:
 
-```javascript
-export const API_CONFIG = {
-  APP_KEY: "YOUR_APP_KEY_HERE",
-  APP_SECRET: "YOUR_APP_SECRET_HERE",
-  BASE_URL: "https://openapi.koreainvestment.com:9443",
-  WS_URL: "ws://ops.koreainvestment.com:21000",
-};
-```
+   ```bash
+   cp js/background/env.example.js js/background/env.js
+   ```
 
-2. API 키 발급:
+2. **API 키 입력**:
+   `js/background/env.js` 파일을 열고 실제 API 키를 입력하세요:
+
+   ```javascript
+   export const ENV_CONFIG = {
+     APP_KEY: "YOUR_ACTUAL_APP_KEY_HERE",
+     APP_SECRET: "YOUR_ACTUAL_APP_SECRET_HERE",
+   };
+   ```
+
+3. **API 키 발급**:
 
    - [한국투자증권 개발자센터](https://apiportal.koreainvestment.com/) 접속
    - 회원가입 및 로그인
    - "Open API 신청" 메뉴에서 API 신청
    - APP KEY와 APP SECRET 발급
 
-3. 실시간 API 권한 설정:
+4. **실시간 API 권한 설정**:
    - 개발자센터에서 실시간 API 신청 및 승인 절차 진행
 
-### 사용자용 설정
+### 파일 구조 설명
 
-- **별도 설정 불필요**: 개발자가 제공하는 공통 API 키를 자동으로 사용
-- **즉시 사용 가능**: 설치 후 바로 주식 시세 확인 가능
+- **`env.js`**: 실제 API 키와 시크릿 (Git 제외)
+- **`env.example.js`**: API 키 설정 예시 (Git 포함)
+- **`config.js`**: API 설정 및 엔드포인트 (Git 포함, env.js에서 키를 가져옴)
 
 ## 프로젝트 구조
 
 ```
 stock-view-chrome/
-├── manifest.json          # 확장 프로그램 설정
-├── background.js          # 백그라운드 서비스 워커 (메인 진입점)
-├── popup.html            # 팝업 UI
-├── popup.js              # 팝업 로직
+├── manifest.json                    # 확장 프로그램 설정
+├── popup.html                      # 팝업 UI
 ├── js/
-│   ├── config.js         # API 설정 및 엔드포인트 (Git 제외)
-│   ├── tokenManager.js   # 토큰 및 승인키 관리
-│   ├── apiService.js     # API 호출 서비스
-│   ├── realTimeManager.js # 실시간 데이터 관리
-│   ├── messageHandler.js # 메시지 처리
-│   └── stockSymbols.js   # 주식 심볼 데이터
+│   ├── background/
+│   │   ├── background.js           # 백그라운드 서비스 워커 (메인 진입점)
+│   │   ├── config.js               # API 설정 및 엔드포인트 (Git 포함)
+│   │   ├── env.js                  # API 키 설정 (Git 제외)
+│   │   ├── env.example.js          # API 키 설정 예시
+│   │   ├── tokenManager.js         # 토큰 및 승인키 관리
+│   │   ├── apiService.js           # API 호출 서비스
+│   │   ├── realTimeManager.js      # 실시간 데이터 관리
+│   │   └── messageHandler.js       # 메시지 처리
+│   └── popup/
+│       ├── popup.js                # 팝업 메인 로직
+│       ├── uiManager.js            # UI 관리 및 렌더링
+│       ├── dataManager.js          # 데이터 관리 및 API 호출
+│       └── stockSymbols.js         # 주식 심볼 데이터
 ├── css/
-│   └── style.css         # 스타일시트
-├── .gitignore           # Git 제외 파일 설정
+│   └── style.css                   # 스타일시트
+├── .gitignore                      # Git 제외 파일 설정
 └── README.md
 ```
 

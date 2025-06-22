@@ -4,7 +4,7 @@
 // 실제 운영 환경에서는 이 목록을 서버에서 받아오거나,
 // 크롬 확장 프로그램에 전체 종목 파일을 내장해야 합니다.
 
-const stockSymbols = {
+export const stockSymbols = {
   KOSPI: [
     { name: "삼성전자", code: "005930" },
     { name: "SK하이닉스", code: "000660" },

@@ -22,7 +22,7 @@
     }
   },
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "js/background/background.js",
     "type": "module"
   },
   "permissions": ["storage", "activeTab", "scripting"],
