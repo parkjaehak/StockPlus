@@ -1,5 +1,5 @@
 .popup-container {
-  width: 340px;
+  width: 380px;
   padding: 10px;
   background: #fff;
   font-family: "Segoe UI", Arial, sans-serif;
@@ -58,10 +58,12 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+/* 주식 테이블 전체 스타일 */
 .stock-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+  width: 100%; /* 테이블이 부모(컨테이너) 너비 전체를 차지 */
+  border-collapse: collapse; /* 셀 경계선이 하나로 겹쳐져 깔끔하게 표시 */
+  font-size: 13px; /* 테이블 내 글씨 크기를 13px로 지정 */
+  table-layout: fixed;
 }
 .stock-table th,
 .stock-table td {
@@ -79,26 +81,30 @@
 .stock-table th,
 .stock-table td {
   min-width: 70px;
+  /**border: 1px solid #ccc;**/
 }
 .stock-table th:nth-child(1),
 .stock-table td:nth-child(1) {
-  min-width: 120px;
-  width: 120px;
+  min-width: 110px;
+  width: 110px;
 }
 .stock-table th:nth-child(2),
 .stock-table td:nth-child(2) {
   min-width: 80px;
   width: 80px;
+  text-align: right;
 }
 .stock-table th:nth-child(3),
 .stock-table td:nth-child(3) {
   min-width: 80px;
   width: 80px;
+  text-align: right;
 }
 .stock-table th:nth-child(4),
 .stock-table td:nth-child(4) {
-  min-width: 70px;
-  width: 70px;
+  min-width: 80px;
+  width: 80px;
+  text-align: right;
 }
 .stock-table td:first-child {
   width: 150px; /* 종목명 열 너비 확보 */
@@ -151,6 +157,7 @@
 }
 .text-even {
   color: #333;
+  font-weight: bold;
 }
 .sub {
   color: #888;
@@ -345,4 +352,29 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.price-bold {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.change-price {
+  font-size: 12px;
+  margin-bottom: 2px;
+  text-align: right;
+  font-weight: bold;
+}
+.change-rate {
+  font-size: 12px;
+  font-weight: normal;
+  text-align: right;
+}
+.volume {
+  text-align: right !important;
+}
+
+.arrow {
+  font-size: 9px;
+  vertical-align: middle;
 }

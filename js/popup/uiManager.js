@@ -17,7 +17,7 @@ const headerDefs = [
   { label: "거래량", key: "volume" },
 ];
 
-// UI 렌더링 함수들
+// 테이블 렌더링
 export function renderTable(data, append = false) {
   const tbody = document.getElementById("stock-tbody");
   if (!append) tbody.innerHTML = "";
@@ -37,28 +37,36 @@ export function renderTable(data, append = false) {
       <td class="${getChangeClass(displayData.change_rate)}">
         ${formatNumber(Math.abs(displayData.price))}
       </td>
-      <td class="${getChangeClass(displayData.change_rate)}">
-        <div>${
-          displayData.change_rate > 0
-            ? "+"
-            : displayData.change_rate < 0
-            ? "-"
-            : ""
-        }${Math.abs(displayData.change_rate).toFixed(2)}%</div>
-        <div class="sub">${
-          displayData.change_price > 0
-            ? "+"
-            : displayData.change_price < 0
-            ? "-"
-            : ""
-        }${formatNumber(Math.abs(displayData.change_price))}</div>
+      <td>
+        <div class="${getChangeClass(displayData.change_rate)} change-price">
+          <span class="arrow">${
+            displayData.change_price > 0
+              ? "▲"
+              : displayData.change_price < 0
+              ? "▼"
+              : ""
+          }</span>
+          <span class="change-price">${formatNumber(
+            Math.abs(displayData.change_price)
+          )}</span>
+        </div>
+        <div class="${getChangeClass(displayData.change_rate)} change-rate">
+          <span>${
+            displayData.change_rate > 0
+              ? "+"
+              : displayData.change_rate < 0
+              ? "-"
+              : ""
+          }${Math.abs(displayData.change_rate).toFixed(2)}%</span>
+        </div>
       </td>
-      <td>${formatVolume(displayData.volume)}</td>
+      <td class="volume">${formatVolume(displayData.volume)}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
+//헤더 렌더링
 export function renderTableHeader() {
   const thead = document.querySelector(".stock-table thead tr");
   thead.innerHTML = "";
