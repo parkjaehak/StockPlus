@@ -135,7 +135,7 @@ export class TokenManager {
         `${API_CONFIG.BASE_URL}${API_ENDPOINTS.APPROVAL_KEY}`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json; utf-8" },
           body: JSON.stringify({
             grant_type: "client_credentials",
             appkey: API_CONFIG.APP_KEY,
@@ -145,6 +145,7 @@ export class TokenManager {
       );
 
       const data = await response.json();
+
       if (!response.ok || !data.approval_key) {
         throw new Error(
           `실시간 접속키 발급 실패: ${

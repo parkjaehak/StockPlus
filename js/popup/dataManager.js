@@ -137,7 +137,7 @@ export async function startRealTimeData(stockCodes) {
     try {
       const success = await attemptConnection();
       if (success) {
-        return;
+        return; // 성공 시 즉시 반환
       }
 
       retryCount++;
@@ -257,7 +257,7 @@ export async function filterByMarket(marketSelect) {
 
       // 파싱된 첫 번째 종목 데이터 로깅
       if (stocks.length > 0) {
-        console.log("파싱 후 첫 번째 종목 데이터:", stocks[0]);
+        // 첫 번째 종목 데이터는 로그에서 제거
       }
 
       setFilteredStocks(stocks);

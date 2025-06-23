@@ -12,11 +12,19 @@ export class RealTimeManager {
   }
 
   connect(approvalKey) {
+    // 승인키 존재 여부만 확인
+    if (!approvalKey) {
+      console.error("승인키가 필요합니다.");
+      return;
+    }
+
     if (this.ws) {
       this.ws.close();
     }
 
-    this.ws = new WebSocket(API_CONFIG.WS_URL);
+    // 승인키를 URL에 포함하여 연결
+    const wsUrl = `${API_CONFIG.WS_URL}?approval_key=${approvalKey}`;
+    this.ws = new WebSocket(wsUrl);
     this.setupWebSocketHandlers(approvalKey);
   }
 
@@ -42,6 +50,12 @@ export class RealTimeManager {
 
     this.ws.onerror = (error) => {
       console.error("WebSocket 오류:", error);
+      // 승인키 문제일 수 있음
+      if (error.message && error.message.includes("200")) {
+        console.error(
+          "승인키가 유효하지 않거나 실시간 데이터 접근 권한이 없습니다."
+        );
+      }
     };
   }
 
@@ -55,38 +69,94 @@ export class RealTimeManager {
 
   handleJsonMessage(data) {
     const parsed = JSON.parse(data);
+
+    // PINGPONG 처리
     if (parsed.header?.tr_id === "PINGPONG") {
       this.ws.send(data);
+      return;
+    }
+
+    // 구독 성공 확인
+    if (parsed.body?.msg1 === "SUBSCRIBE SUCCESS") {
+      console.log("실시간 데이터 구독 성공");
+      // 복호화 키 저장 (필요시)
+      if (parsed.body.output) {
+        this.iv = parsed.body.output.iv;
+        this.key = parsed.body.output.key;
+      }
     }
   }
 
   parseRealTimeData(dataStr) {
-    const parts = dataStr.split("|").slice(1);
-    if (parts.length < 2) return;
+    const parts = dataStr.split("|");
+    if (parts.length < 4) return;
 
-    const [headerPart, bodyPart] = parts;
-    const headerFields = headerPart.split("^");
-    const bodyFields = bodyPart.split("^");
-    const trId = headerFields[1];
+    const trId = parts[1];
+    if (trId !== "H0STCNT0") return;
 
-    if (trId === "H0STCNT0") {
-      this.processStockData(headerFields, bodyFields);
+    const dataCount = parseInt(parts[2], 10);
+    const allFields = parts[3].split("^");
+
+    // H0STCNT0 실시간 체결 응답은 46개의 필드를 가짐
+    const fieldsPerItem = 46;
+
+    for (let i = 0; i < dataCount; i++) {
+      const startIndex = i * fieldsPerItem;
+      const endIndex = startIndex + fieldsPerItem;
+
+      if (endIndex > allFields.length) {
+        console.error("데이터 필드 개수가 예상과 다릅니다.", { dataStr });
+        break;
+      }
+
+      const dataFields = allFields.slice(startIndex, endIndex);
+      this.processStockData(dataFields);
     }
   }
 
-  processStockData(headerFields, bodyFields) {
+  processStockData(dataFields) {
+    // H0STCNT0의 필드는 46개. 최소한 누적 거래량 인덱스(13)보다는 커야 함
+    if (dataFields.length < 14) {
+      console.error("수신된 데이터 필드가 충분하지 않습니다.", { dataFields });
+      return;
+    }
+
+    // 한국투자증권 실시간 주식 체결가(H0STCNT0) 응답 데이터 명세 기준
+    // 0: 유가증권 단축 종목코드 (MKSC_SHRN_ISCD)
+    // 2: 주식 현재가 (STCK_PRPR)
+    // 4: 전일 대비 (PRDY_VRSS)
+    // 5: 전일 대비율 (PRDY_CTRT)
+    // 13: 누적 거래량 (ACML_VOL)
     const parsedData = {
-      code: headerFields[0].trim(),
-      price: parseFloat(bodyFields[1]),
-      change_price: parseFloat(bodyFields[2]),
-      change_rate: parseFloat(bodyFields[4]),
-      volume: parseFloat(bodyFields[5]),
+      code: dataFields[0].trim(),
+      price: parseFloat(dataFields[2]),
+      change_price: parseFloat(dataFields[4]),
+      change_rate: parseFloat(dataFields[5]),
+      volume: parseFloat(dataFields[13]),
     };
 
-    chrome.runtime.sendMessage({
-      type: "REAL_TIME_UPDATE",
-      data: parsedData,
-    });
+    // 실시간 데이터를 popup으로 전송 (오류 처리 추가)
+    try {
+      chrome.runtime
+        .sendMessage({
+          type: "REAL_TIME_UPDATE",
+          data: parsedData,
+        })
+        .catch((error) => {
+          // popup이 닫혀있거나 응답할 수 없는 경우 무시
+          if (error.message.includes("Receiving end does not exist")) {
+            // 정상적인 상황이므로 로그 출력하지 않음
+            return;
+          }
+          console.error("실시간 데이터 전송 오류:", error);
+        });
+    } catch (error) {
+      // 동기적 오류 처리
+      if (error.message.includes("Receiving end does not exist")) {
+        return;
+      }
+      console.error("실시간 데이터 전송 오류:", error);
+    }
   }
 
   resubscribeAll(approvalKey) {

@@ -35,6 +35,7 @@ export class MessageHandler {
 
   async handleStartRealTime(message) {
     const approvalKey = await this.tokenManager.getApprovalKey();
+
     if (!approvalKey) {
       throw new Error("실시간 접속키를 가져올 수 없습니다.");
     }
