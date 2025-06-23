@@ -28,11 +28,47 @@ export class RealTimeManager {
     this.setupWebSocketHandlers(approvalKey);
   }
 
+  async connectAndSubscribe(approvalKey, stockCodes) {
+    return new Promise((resolve, reject) => {
+      // 연결 완료 후 구독을 시작하기 위한 콜백 설정
+      const originalOnOpen = this.ws?.onopen;
+
+      this.connect(approvalKey);
+
+      // WebSocket 연결 완료 후 구독 시작
+      this.ws.onopen = () => {
+        console.log("WebSocket 연결 성공.");
+        this.reconnectAttempts = 0;
+
+        // 구독할 종목이 있을 때만 재구독
+        if (this.subscribedStocks.size > 0) {
+          this.resubscribeAll(approvalKey);
+        }
+
+        // 새로운 종목들 구독
+        if (stockCodes && stockCodes.length > 0) {
+          this.updateSubscriptions(stockCodes, approvalKey);
+        }
+
+        resolve();
+      };
+
+      this.ws.onerror = (error) => {
+        console.error("WebSocket 연결 오류:", error);
+        reject(error);
+      };
+    });
+  }
+
   setupWebSocketHandlers(approvalKey) {
     this.ws.onopen = () => {
       console.log("WebSocket 연결 성공.");
       this.reconnectAttempts = 0;
-      this.resubscribeAll(approvalKey);
+
+      // 구독할 종목이 있을 때만 재구독 (connectAndSubscribe에서 처리하지 않는 경우)
+      if (this.subscribedStocks.size > 0) {
+        this.resubscribeAll(approvalKey);
+      }
     };
 
     this.ws.onmessage = (event) => {
@@ -61,8 +97,10 @@ export class RealTimeManager {
 
   handleWebSocketMessage(event) {
     if (event.data.startsWith("{")) {
+      //console.log("Json: ", event.data);
       this.handleJsonMessage(event.data);
     } else {
+      //console.log("Text: ", event.data);
       this.parseRealTimeData(event.data);
     }
   }

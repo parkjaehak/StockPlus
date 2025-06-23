@@ -13,10 +13,6 @@ import {
 // API 관련 함수들
 export async function fetchStockData(stockCodes, marketCode) {
   try {
-    console.log(
-      `종목 데이터 조회 시작: ${stockCodes.length}개 종목, 마켓: ${marketCode}`
-    );
-
     const response = await chrome.runtime.sendMessage({
       type: "GET_MULTIPLE_STOCKS",
       data: {
@@ -264,7 +260,10 @@ export async function filterByMarket(marketSelect) {
 
       const stockCodes = stocks.filter((s) => s.code).map((s) => s.code);
       if (stockCodes.length > 0) {
-        startRealTimeData(stockCodes);
+        // 메시지 리스너 설정을 위한 짧은 지연
+        setTimeout(() => {
+          startRealTimeData(stockCodes);
+        }, 100);
       }
     } else {
       console.error("시가총액 상위 종목 조회 실패: 데이터가 없습니다.");

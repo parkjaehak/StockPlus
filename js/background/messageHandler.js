@@ -41,10 +41,11 @@ export class MessageHandler {
     }
 
     if (!this.realTimeManager.isWebSocketReady()) {
-      this.realTimeManager.connect(approvalKey);
+      await this.realTimeManager.connectAndSubscribe(approvalKey, message.data);
+    } else {
+      this.realTimeManager.updateSubscriptions(message.data, approvalKey);
     }
 
-    this.realTimeManager.updateSubscriptions(message.data, approvalKey);
     return { success: true };
   }
 

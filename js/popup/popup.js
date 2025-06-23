@@ -14,23 +14,22 @@ import {
 } from "./dataManager.js";
 import { stockSymbols } from "./stockSymbols.js";
 
-// 초기화 함수
-async function initialRender() {
-  renderTableHeader();
-  await filterByMarket(document.getElementById("market-select"));
-}
-
-// 실시간 데이터 업데이트 리스너
+// 실시간 데이터 업데이트 리스너 (가장 먼저 설정)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "REAL_TIME_UPDATE") {
     const { code, price, change_rate, change_price, volume } = message.data;
-
     // 실시간 데이터 저장
     setRealTimeData(code, { price, change_rate, change_price, volume });
     // UI 업데이트
     updateStockRow(code);
   }
 });
+
+// 초기화 함수
+async function initialRender() {
+  renderTableHeader();
+  await filterByMarket(document.getElementById("market-select"));
+}
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
