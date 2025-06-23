@@ -65,32 +65,52 @@
 - **`env.example.js`**: API 키 설정 예시 (Git 포함)
 - **`config.js`**: API 설정 및 엔드포인트 (Git 포함, env.js에서 키를 가져옴)
 
-## 프로젝트 구조
+## 프로젝트 파일 구조 및 역할
 
 ```
 stock-view-chrome/
-├── manifest.json                    # 확장 프로그램 설정
-├── popup.html                      # 팝업 UI
+├── manifest.json                # 크롬 확장 프로그램 설정 파일
+├── popup.html                  # 팝업 UI의 HTML
+├── css/
+│   └── style.css               # 팝업 및 확장 UI 스타일시트
 ├── js/
 │   ├── background/
-│   │   ├── background.js           # 백그라운드 서비스 워커 (메인 진입점)
-│   │   ├── config.js               # API 설정 및 엔드포인트 (Git 포함)
-│   │   ├── env.js                  # API 키 설정 (Git 제외)
-│   │   ├── env.example.js          # API 키 설정 예시
-│   │   ├── tokenManager.js         # 토큰 및 승인키 관리
-│   │   ├── apiService.js           # API 호출 서비스
-│   │   ├── realTimeManager.js      # 실시간 데이터 관리
-│   │   └── messageHandler.js       # 메시지 처리
+│   │   ├── background.js       # 백그라운드 서비스 워커(메인 진입점)
+│   │   ├── config.js           # API 엔드포인트, 환경설정
+│   │   ├── env.js              # API 키, HTS_USER_ID 등 민감정보 (Git 제외)
+│   │   ├── env.example.js      # 환경변수 예시 (복사해서 env.js로 사용)
+│   │   ├── tokenManager.js     # API 토큰 및 승인키 관리
+│   │   ├── apiService.js       # 한국투자증권 OpenAPI 호출 및 응답 처리
+│   │   ├── realTimeManager.js  # WebSocket 실시간 데이터 관리
+│   │   └── messageHandler.js   # 백그라운드 메시지 라우팅 및 분기
 │   └── popup/
-│       ├── popup.js                # 팝업 메인 로직
-│       ├── uiManager.js            # UI 관리 및 렌더링
-│       ├── dataManager.js          # 데이터 관리 및 API 호출
-│       └── stockSymbols.js         # 주식 심볼 데이터
-├── css/
-│   └── style.css                   # 스타일시트
-├── .gitignore                      # Git 제외 파일 설정
-└── README.md
+│       ├── popup.js            # 팝업 메인 로직, 이벤트 바인딩
+│       ├── uiManager.js        # UI 렌더링, 테이블/정렬/스크롤 등
+│       ├── dataManager.js      # 데이터 변환, API 호출, 검색/필터링
+│       └── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성)
+├── stockplus_logo.png          # 확장 프로그램 아이콘
+└── README.md                   # 프로젝트 설명 파일
 ```
+
+### 주요 파일 역할
+
+- **manifest.json**: 크롬 확장 프로그램의 메타 정보 및 권한 설정
+- **popup.html / css/style.css**: 팝업 UI와 스타일
+- **js/background/config.js**: API 엔드포인트, 환경설정, HTS_USER_ID 등 관리
+- **js/background/env.js**: 실제 API 키, HTS_USER_ID 등 민감정보 (Git에 포함 X)
+- **js/background/env.example.js**: 환경변수 예시 (복사해서 env.js로 사용)
+- **js/background/tokenManager.js**: API 토큰 및 실시간 승인키 관리
+- **js/background/apiService.js**: 한국투자증권 OpenAPI 호출, 원본 데이터 반환
+- **js/background/realTimeManager.js**: WebSocket 실시간 데이터 연결/구독/해제
+- **js/background/messageHandler.js**: 백그라운드 메시지 분기 및 서비스 호출
+- **js/popup/popup.js**: 팝업 UI의 메인 진입점, 이벤트 바인딩
+- **js/popup/uiManager.js**: UI 렌더링, 테이블/정렬/스크롤 등 화면 표시 담당
+- **js/popup/dataManager.js**: API 데이터 변환, 검색/필터, UI에 데이터 전달
+- **js/popup/stockSymbols.js**: KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
+
+---
+
+이 구조에 따라 각 파일이 분리되어 있어 유지보수와 확장성이 뛰어납니다.
 
 ## 모듈별 역할
 
