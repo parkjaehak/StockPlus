@@ -1,0 +1,78 @@
+/* layout.css: 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등 */
+
+.popup-container {
+  width: 380px;
+  padding: 15px 0px;
+  background: #fff;
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox: 기본 숨김 */
+  position: relative;
+  scrollbar-gutter: stable;
+}
+
+/* 스크롤바 관련 */
+.popup-container::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: none;
+}
+.popup-container:hover::-webkit-scrollbar {
+  display: block;
+  opacity: 1;
+}
+.popup-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.popup-container:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+.popup-container:not(:hover) {
+  scrollbar-width: none;
+}
+.popup-container:hover {
+  scrollbar-width: thin;
+}
+
+.header {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+#market-select,
+#search {
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+/* API 설정 UI 스타일 */
+.api-settings {
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}

@@ -1,0 +1,123 @@
+/* table.css: 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등 */
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: fixed;
+}
+.stock-table th,
+.stock-table td {
+  padding: 6px 4px;
+  text-align: left;
+  border-bottom: 1px solid #cfcfcf;
+  min-width: 70px;
+}
+.stock-table th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.stock-table th:nth-child(1),
+.stock-table td:nth-child(1) {
+  min-width: 110px;
+  width: 110px;
+}
+.stock-table th:nth-child(2),
+.stock-table td:nth-child(2) {
+  min-width: 80px;
+  width: 80px;
+  text-align: right;
+}
+.stock-table th:nth-child(3),
+.stock-table td:nth-child(3) {
+  min-width: 80px;
+  width: 80px;
+  text-align: right;
+}
+.stock-table th:nth-child(4),
+.stock-table td:nth-child(4) {
+  min-width: 80px;
+  width: 80px;
+  text-align: right;
+}
+.stock-table td:first-child {
+  width: 150px;
+  text-align: left;
+  white-space: normal;
+  word-break: keep-all;
+}
+.stock-table th:nth-child(1) {
+  text-align: center;
+}
+.sort-icons {
+  margin-left: 4px;
+  display: inline-flex;
+  flex-direction: row;
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.stock-table th:hover .sort-icons,
+.stock-table th .sort-active {
+  opacity: 1;
+}
+.sort-icon {
+  margin-left: 4px;
+  font-size: 13px;
+  color: #bbb;
+  vertical-align: middle;
+  transition: color 0.15s;
+  width: 16px;
+  display: inline-block;
+  text-align: center;
+}
+.sort-active {
+  color: #222 !important;
+  font-weight: bold;
+}
+.stock-name {
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 1.3;
+}
+.stock-code {
+  font-size: 11px;
+  color: #888;
+}
+.text-rise {
+  color: #d32f2f;
+  font-weight: bold;
+}
+.text-fall {
+  color: #1976d2;
+  font-weight: bold;
+}
+.text-even {
+  color: #333;
+  font-weight: bold;
+}
+.sub {
+  color: #888;
+  font-size: 11px;
+}
+.volume {
+  text-align: right;
+}
+.arrow {
+  font-size: 13px;
+  margin-left: 2px;
+}
+.change-price {
+  font-size: 12px;
+  font-weight: normal;
+  margin-bottom: 2px;
+  text-align: right;
+}
+.change-rate {
+  font-size: 12px;
+  font-weight: normal;
+  text-align: right;
+}

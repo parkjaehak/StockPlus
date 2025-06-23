@@ -1,5 +1,77 @@
 # StockPlus - 한국투자 Open API 기반 주식 시세 현황
 
+## 프로젝트 구조
+
+```
+stock-view-chrome/
+  css/
+    layout.css         # 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
+    table.css          # 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
+    components.css     # 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시 등
+    common.css         # 볼드, 숨김, 중앙정렬 등 공통 유틸리티
+  js/
+    background/
+      apiService.js      # API 호출 및 조건검색, 종목 데이터 관리
+      background.js      # 크롬 확장 백그라운드 스크립트
+      config.js          # API/환경변수 설정
+      env.example.js     # 환경변수 예시 (실제 사용시 env.js로 복사)
+      env.js             # 실제 환경변수 (개인정보, git에 올리지 않음)
+      messageHandler.js  # 백그라운드 메시지 처리
+      realTimeManager.js # 실시간 체결가 웹소켓 관리
+      tokenManager.js    # 토큰 관리
+    popup/
+      dataManager.js     # 데이터 변환, API 호출, 실시간 데이터 관리
+      popup.js           # 팝업 진입점, 이벤트 바인딩
+      stockSymbols.js    # 조건검색 결과 종목 리스트 관리
+      uiManager.js       # UI 렌더링 및 테이블/알림 등 관리
+  manifest.json          # 크롬 확장 매니페스트
+  popup.html             # 팝업 UI
+  stockplus_logo.png     # 로고
+  README.md              # 프로젝트 설명
+```
+
+## 주요 파일 역할
+
+- **layout.css**: 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
+- **table.css**: 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
+- **components.css**: 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시 등
+- **common.css**: 볼드, 숨김, 중앙정렬 등 공통 유틸리티
+- **uiManager.js**: UI 렌더링, 테이블/알림/로딩 등 관리
+- **dataManager.js**: 데이터 변환, API 호출, 실시간 데이터 관리
+- **stockSymbols.js**: 조건검색 결과 종목 리스트 관리 (붙여넣기/자동 변환 코드 포함)
+- **apiService.js**: 조건검색 기반 종목 조회, 실시간 체결가 API 관리
+- **realTimeManager.js**: 실시간 체결가 웹소켓 구독/파싱/전송
+- **tokenManager.js**: API 토큰 관리
+- **messageHandler.js**: 백그라운드 메시지 처리
+- **popup.js**: 팝업 진입점, 이벤트 바인딩
+
+## 환경변수 관리
+
+- `js/background/env.example.js`를 `env.js`로 복사 후 실제 API 키, HTS ID 입력
+- `config.js`에서 환경변수 import
+- `env.js`는 git에 올리지 않음(개인정보 보호)
+
+## stockSymbols.js 관리법
+
+- 조건검색 결과(종목명/코드 리스트)를 콘솔에서 복사해 붙여넣기
+- 자동 변환 코드 예시:
+  ```js
+  // 콘솔에서 [{name: "삼성전자", code: "005930"}, ...] 형태로 붙여넣기
+  export const stockSymbols = {
+    KOSPI: [...],
+    KOSDAQ: [...]
+  };
+  ```
+
+## 스타일 분리 방식
+
+- style.css는 삭제, 모든 스타일은 layout.css, table.css, components.css, common.css로 분리 관리
+- popup.html에서 4개 CSS 파일을 모두 불러옴
+
+## 기타
+
+- 실시간 체결가 웹소켓, 조건검색 기반 종목 조회, 데이터 변환 최적화, UI/스타일 개선 등 실무적 팁은 코드 주석 및 각 파일 참고
+
 ## 소개
 
 한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다.

@@ -1,0 +1,11 @@
+/* common.css: 공통 유틸리티 클래스 */
+
+.bold {
+  font-weight: bold;
+}
+.hidden {
+  display: none !important;
+}
+.center {
+  text-align: center !important;
+}

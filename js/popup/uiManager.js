@@ -38,26 +38,25 @@ export function renderTable(data, append = false) {
         ${formatNumber(Math.abs(displayData.price))}
       </td>
       <td>
-        <div class="${getChangeClass(displayData.change_rate)} change-rate">
-          <span>${
+        <div class="change-rate ${getChangeClass(displayData.change_rate)}">
+          ${
             displayData.change_rate > 0
               ? "+"
               : displayData.change_rate < 0
               ? "-"
               : ""
-          }${Math.abs(displayData.change_rate).toFixed(2)}%</span>
+          }
+          ${Math.abs(displayData.change_rate).toFixed(2)}%
         </div>
-          <div class="${getChangeClass(displayData.change_rate)} change-price">
-          <span class="arrow">${
-            displayData.change_price > 0
-              ? "▲"
-              : displayData.change_price < 0
-              ? "▼"
-              : ""
-          }</span>
-          <span class="change-price">${formatNumber(
-            Math.abs(displayData.change_price)
-          )}</span>
+        <div class="change-price ${getChangeClass(displayData.change_rate)}">
+        <span class="arrow">${
+          displayData.change_price > 0
+            ? "▲"
+            : displayData.change_price < 0
+            ? "▼"
+            : ""
+        }</span>
+          ${formatNumber(Math.abs(displayData.change_price))}
         </div>
       </td>
       <td class="volume">${formatVolume(displayData.volume)}</td>
