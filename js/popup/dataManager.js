@@ -242,13 +242,13 @@ export async function filterByMarket(marketSelect) {
 
     if (Array.isArray(responseData) && responseData.length > 0) {
       const stocks = responseData.map((d) => ({
-        name: d.hts_kor_isnm,
-        code: d.mksc_shrn_iscd,
+        name: d.name, // 종목명
+        code: d.code, // 종목코드
         market: market,
-        price: parseFloat(d.stck_prpr) || 0,
-        change_rate: parseFloat(d.prdy_ctrt) || 0,
-        change_price: parseFloat(d.prdy_vrss) || 0,
-        volume: parseFloat(d.acml_vol) || 0,
+        price: parseFloat(d.price) || 0, // 현재가
+        change_price: parseFloat(d.change) || 0, // 전일대비
+        change_rate: parseFloat(d.chgrate) || 0, // 등락률
+        volume: parseFloat(d.acml_vol) || 0, // 거래량
       }));
 
       setFilteredStocks(stocks);

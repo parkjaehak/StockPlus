@@ -17,15 +17,8 @@ export class ApiService {
     }
 
     const searchResult = await this._fetchStocksBySearch(seq);
-
-    // '조건검색 결과조회' API의 응답은 'output2' 필드에 담겨 있습니다.
-    const newStockList = searchResult.output2;
-    if (!newStockList) {
-      return []; // 결과가 없으면 빈 배열 반환
-    }
-
-    // 새 API 응답을 기존 UI가 사용하던 데이터 형식으로 변환
-    return this._transformStockData(newStockList);
+    // 변환 없이 output2(원본)만 그대로 반환
+    return searchResult.output2 || [];
   }
 
   // 조건검색식 목록에서 seq 찾기
@@ -73,19 +66,6 @@ export class ApiService {
     );
 
     return this.handleApiResponse(response);
-  }
-
-  // 데이터 구조 변환 함수
-  _transformStockData(stockList) {
-    return stockList.map((stock) => ({
-      mksc_shrn_iscd: stock.code, // 종목 코드 (code -> mksc_shrn_iscd)
-      hts_kor_isnm: stock.name, // 종목명 (name -> hkor_isnm)
-      stck_prpr: stock.price, // 현재가 (price -> stck_prpr)
-      prdy_vrss: stock.change, // 전일 대비 (change -> prdy_vrss)
-      prdy_ctrt: stock.chgrate, // 등락률 (chgrate -> prdy_ctrt)
-      acml_vol: stock.acml_vol, // 거래량 (acml_vol -> acml_vol)
-      // 필요한 경우 여기에 다른 필드 매핑을 추가할 수 있습니다.
-    }));
   }
 
   // 종목 조회 (검색 시 사용)
