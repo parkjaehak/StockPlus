@@ -363,10 +363,10 @@
   font-size: 12px;
   margin-bottom: 2px;
   text-align: right;
-  font-weight: bold;
+  font-weight: normal;
 }
 .change-rate {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
   text-align: right;
 }
