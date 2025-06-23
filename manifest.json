@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "StockPlus - 한국투자 Open API 기반 주식 시세 현황",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "한국투자 Open API 기반 주식 시세 현황판입니다다",
   "icons": {
     "16": "./stockplus_logo.png",
