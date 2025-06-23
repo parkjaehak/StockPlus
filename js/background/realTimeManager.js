@@ -37,18 +37,10 @@ export class RealTimeManager {
 
       // WebSocket 연결 완료 후 구독 시작
       this.ws.onopen = () => {
-        console.log("WebSocket 연결 성공.");
         this.reconnectAttempts = 0;
-
-        // 구독할 종목이 있을 때만 재구독
-        if (this.subscribedStocks.size > 0) {
-          this.resubscribeAll(approvalKey);
-        }
-
-        // 새로운 종목들 구독
-        if (stockCodes && stockCodes.length > 0) {
-          this.updateSubscriptions(stockCodes, approvalKey);
-        }
+        // 기존 구독 상태와 새로운 종목 목록을 비교하여
+        // 필요한 구독/해지만 수행하도록 updateSubscriptions를 직접 호출합니다.
+        this.updateSubscriptions(stockCodes || [], approvalKey);
 
         resolve();
       };
@@ -62,9 +54,7 @@ export class RealTimeManager {
 
   setupWebSocketHandlers(approvalKey) {
     this.ws.onopen = () => {
-      console.log("WebSocket 연결 성공.");
       this.reconnectAttempts = 0;
-
       // 구독할 종목이 있을 때만 재구독 (connectAndSubscribe에서 처리하지 않는 경우)
       if (this.subscribedStocks.size > 0) {
         this.resubscribeAll(approvalKey);
@@ -75,12 +65,7 @@ export class RealTimeManager {
       this.handleWebSocketMessage(event);
     };
 
-    this.ws.onclose = (event) => {
-      console.log("WebSocket 연결 종료:", {
-        code: event.code,
-        reason: event.reason,
-        wasClean: event.wasClean,
-      });
+    this.ws.onclose = () => {
       this.handleReconnect(approvalKey);
     };
 

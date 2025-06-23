@@ -251,11 +251,6 @@ export async function filterByMarket(marketSelect) {
         volume: parseFloat(d.acml_vol) || 0,
       }));
 
-      // 파싱된 첫 번째 종목 데이터 로깅
-      if (stocks.length > 0) {
-        // 첫 번째 종목 데이터는 로그에서 제거
-      }
-
       setFilteredStocks(stocks);
 
       const stockCodes = stocks.filter((s) => s.code).map((s) => s.code);
