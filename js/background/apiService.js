@@ -84,7 +84,7 @@ export class ApiService {
         headers: this.buildHeaders(token, "FHKST01010100"),
       });
 
-      // 공통 응답 핸들러를 사용하도록 리팩토링
+      // 공통 응답 핸들러를 사용
       const data = await this.handleApiResponse(response);
       if (data.output) {
         results.push(data.output);
@@ -114,11 +114,8 @@ export class ApiService {
 
     const data = await response.json();
     if (data.rt_cd !== "0") {
-      // 파이썬 예시에 따라 에러 메시지에 msg_cd를 추가합니다.
       throw new Error(`API 오류: ${data.msg1} (응답코드: ${data.msg_cd})`);
     }
-
-    // data.output 대신 전체 데이터 객체를 반환하도록 변경
     return data;
   }
 

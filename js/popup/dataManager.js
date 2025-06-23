@@ -10,7 +10,7 @@ import {
   getPageSize,
 } from "./uiManager.js";
 
-// API 관련 함수들
+// 검색 종목 조회
 export async function fetchStockData(stockCodes, marketCode) {
   try {
     const response = await chrome.runtime.sendMessage({
@@ -22,9 +22,6 @@ export async function fetchStockData(stockCodes, marketCode) {
     });
 
     if (response && response.success) {
-      console.log(
-        `종목 데이터 조회 성공: ${response.data?.length || 0}개 종목`
-      );
       return response.data || [];
     } else {
       const errorMessage = response?.error || "API 응답 오류";
@@ -44,13 +41,11 @@ export async function fetchStockData(stockCodes, marketCode) {
     } else {
       showNotification("데이터를 가져오는 중 오류가 발생했습니다.", "error");
     }
-
-    // API 실패시 빈 배열 반환
     return [];
   }
 }
 
-// 범용 API 호출 함수
+// 공통 API 호출 함수
 export async function callApi(type, data) {
   try {
     const response = await chrome.runtime.sendMessage({
@@ -78,8 +73,6 @@ export async function callApi(type, data) {
     } else {
       showNotification("데이터를 가져오는 중 오류가 발생했습니다.", "error");
     }
-
-    // API 실패시 빈 배열 반환
     return [];
   }
 }
@@ -195,13 +188,12 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
 
       if (Array.isArray(responseData) && responseData.length > 0) {
         const stocks = responseData.map((d) => ({
-          name: d.stck_shrn_iscd, // API 응답에 이름이 없으므로 코드를 사용
-          code: d.stck_shrn_iscd,
+          code: d.stck_shrn_iscd, //주식 단축 종목코드
           market: marketCode,
-          price: parseFloat(d.stck_prpr) || 0,
-          change_rate: parseFloat(d.prdy_ctrt) || 0,
-          change_price: parseFloat(d.prdy_vrss) || 0,
-          volume: parseFloat(d.acml_vol) || 0, // 개별 조회 응답에는 acml_vol이 없을 수 있음
+          price: parseFloat(d.stck_prpr) || 0, //현재가
+          change_rate: parseFloat(d.prdy_ctrt) || 0, //전일 대비율
+          change_price: parseFloat(d.prdy_vrss) || 0, //전일 대비
+          volume: parseFloat(d.acml_vol) || 0, //누적 거래량
         }));
 
         // 검색 결과에 한글 이름 매핑
