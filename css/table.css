@@ -103,6 +103,8 @@
   font-weight: bold;
   font-size: 13px;
   line-height: 1.3;
+  white-space: normal;
+  word-break: break-all;
 }
 .stock-code {
   font-size: 11px;

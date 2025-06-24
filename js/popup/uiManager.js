@@ -230,7 +230,7 @@ export function sortStocks(key) {
     return 0;
   });
   currentPage = 1;
-  renderTable(filteredStocks.slice(0, PAGE_SIZE));
+  renderTable(filteredStocks);
   updateHeaderArrows();
 }
 

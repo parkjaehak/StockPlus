@@ -94,7 +94,7 @@ export const stockSymbols = {
     { name: "에이피알", code: "278470" },
     { name: "LG생활건강", code: "051900" },
     { name: "넷마블", code: "251270" },
-    { name: "한국타이어앤테크놀로", code: "161390" },
+    { name: "한국타이어앤테크놀로지", code: "161390" },
     { name: "CJ", code: "001040" },
     { name: "LG디스플레이", code: "034220" },
     { name: "현대오토에버", code: "307950" },
