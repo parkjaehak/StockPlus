@@ -11,8 +11,13 @@
 - 🔍 **종목 검색**: 종목명 또는 종목코드로 검색
 - 📈 **마켓별 필터링**: KOSPI, KOSDAQ 선택
 - ⬆️ **컬럼별 정렬**: 현재가, 전일대비, 거래대금 기준 정렬
-- 📜 **무한 스크롤**: 페이지네이션 없이 스크롤로 데이터 로드
 - 🔐 **공통 API 키**: 개발자가 제공하는 공통 API 키 사용
+
+## 🚧 추후 예정 기능
+
+- ⭐ **즐겨찾기 기능**: 관심 종목을 즐겨찾기로 등록하여 빠른 접근
+- 🌙 **나이트모드**: 다크 테마 지원으로 눈의 피로도 감소
+- 🔔 **시세 알림 기능**: 설정한 가격에 도달했을 때 알림 제공
 
 ## 설치 방법
 
@@ -78,9 +83,9 @@ stock-view-chrome/
 │   │   └── messageHandler.js   # 백그라운드 메시지 라우팅 및 분기
 │   └── popup/
 │       ├── popup.js            # 팝업 메인 로직, 이벤트 바인딩
-│       ├── uiManager.js        # UI 렌더링, 테이블/정렬/스크롤 등
-│       ├── dataManager.js      # 데이터 변환, API 호출, 검색/필터링
-│       ├── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성)
+│       ├── uiManager.js        # UI 렌더링, 테이블/정렬 등 화면 표시 담당
+│       ├── dataManager.js      # API 데이터 변환, 검색/필터, UI에 데이터 전달
+│       ├── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
 │       └── simple-scrollbar.js # 커스텀 스크롤바 라이브러리
 ├── stockplus_logo.png          # 확장 프로그램 아이콘
 └── README.md                   # 프로젝트 설명 파일
@@ -102,7 +107,7 @@ stock-view-chrome/
 ### 📁 Popup Scripts (js/popup/)
 
 - **popup.js**: 팝업 UI의 메인 진입점, 이벤트 바인딩
-- **uiManager.js**: UI 렌더링, 테이블/정렬/스크롤 등 화면 표시 담당
+- **uiManager.js**: UI 렌더링, 테이블/정렬 등 화면 표시 담당
 - **dataManager.js**: API 데이터 변환, 검색/필터, UI에 데이터 전달
 - **stockSymbols.js**: KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
 - **simple-scrollbar.js**: 커스텀 스크롤바 라이브러리
