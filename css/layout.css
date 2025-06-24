@@ -2,41 +2,57 @@
 
 .popup-container {
   width: 380px;
-  padding: 15px 0px;
+  height: 560px; /* 고정 높이 설정 */
+  padding: 15px 0px 0px 0px; /*상하좌우*/
   background: #fff;
   font-family: "Segoe UI", Arial, sans-serif;
-  overflow-y: auto;
-  scrollbar-width: none; /* Firefox: 기본 숨김 */
+  overflow: hidden; /* 스크롤 제거하고 고정 크기 */
+  scrollbar-width: none;
   position: relative;
   scrollbar-gutter: stable;
+  /**border: 1px solid #0000ff; /* 파란색 실선으로 팝업 컨테이너 테두리 */
 }
 
 /* 스크롤바 관련 */
 .popup-container::-webkit-scrollbar {
-  width: 8px;
+  width: 9px; /* 세로 스크롤바 두께 */
+  height: 9px; /* 가로 스크롤바 두께 */
   background: transparent;
-  opacity: 0;
-  transition: opacity 0.2s;
-  display: none;
-}
-.popup-container:hover::-webkit-scrollbar {
-  display: block;
-  opacity: 1;
+  border-radius: 4px;
 }
 .popup-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 4px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.popup-container:hover::-webkit-scrollbar-thumb {
   opacity: 1;
+  transition: background 0.3s;
 }
-.popup-container:not(:hover) {
-  scrollbar-width: none;
+.popup-container::-webkit-scrollbar-track {
+  background: transparent;
 }
-.popup-container:hover {
-  scrollbar-width: thin;
+
+/* 테이블 컨테이너에 스크롤 적용 */
+.table-container {
+  overflow-y: auto;
+  height: calc(100% - 30px); /* 더 많은 하단 여백 확보 */
+  width: 100%;
+  /**border: 1px solid #00ff00; /* 초록색 실선으로 컨테이너 테두리 */
+  padding: 5px 5px 15px 5px; /* 하단 패딩 증가 */
+  box-sizing: border-box; /* 패딩과 보더를 크기에 포함 */
+  margin-bottom: 10px; /* 하단 마진 추가 */
+}
+
+.table-container::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .header {
@@ -47,11 +63,12 @@
 
 #market-select,
 #search {
-  padding: 4px 6px;
+  padding: 8px 10px; /* 상하 패딩 증가 */
   font-size: 13px;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-bottom: 15px;
+  box-sizing: border-box; /* 패딩과 보더를 높이에 포함 */
 }
 
 /* API 설정 UI 스타일 */
@@ -75,4 +92,13 @@
   font-size: 14px;
   font-weight: 600;
   color: #333;
+}
+
+/* 검색 컨테이너 높이 조정 */
+.search-container {
+  height: 35px; /* 검색 영역 높이 증가 */
+  margin-bottom: 0px;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 요소들 사이 간격 */
 }

@@ -111,12 +111,15 @@ export function updateStockRow(stockCode) {
 
   // 전일대비 업데이트
   changeCell.innerHTML = `
-    <div>${
-      data.change_rate > 0 ? "+" : data.change_rate < 0 ? "-" : ""
-    }${Math.abs(data.change_rate).toFixed(2)}%</div>
-    <div class="sub">${
-      data.change_price > 0 ? "+" : data.change_price < 0 ? "-" : ""
-    }${formatNumber(Math.abs(data.change_price))}</div>
+    <div class="change-rate ${getChangeClass(data.change_rate)}">${
+    data.change_rate > 0 ? "+" : data.change_rate < 0 ? "-" : ""
+  }${Math.abs(data.change_rate).toFixed(2)}%</div>
+    <div class="change-price ${getChangeClass(data.change_rate)}">
+      <span class="arrow">${
+        data.change_price > 0 ? "▲" : data.change_price < 0 ? "▼" : ""
+      }</span>
+      ${formatNumber(Math.abs(data.change_price))}
+    </div>
   `;
 
   // 거래량 업데이트
@@ -244,14 +247,41 @@ export function loadMore() {
   console.log(
     `추가 데이터 로드: ${start + 1}~${Math.min(end, total)} / ${total}`
   );
-  renderTable(filteredStocks.slice(start, end), true);
+
+  // 새로운 종목들 렌더링
+  const newStocks = filteredStocks.slice(start, end);
+  renderTable(newStocks, true);
   currentPage = nextPage;
+
+  // 스크롤 시에는 실시간 구독 업데이트하지 않음
+  // 이미 setFilteredStocks에서 전체 종목에 대한 구독이 설정되어 있음
 }
 
 // 데이터 관리 함수들
 export function setFilteredStocks(stocks) {
   filteredStocks = stocks;
   currentPage = 1;
+
+  // 초기 데이터 설정 시 실시간 데이터 구독 시작
+  if (stocks.length > 0) {
+    const stockCodes = stocks.map((stock) => stock.code);
+    updateRealTimeSubscriptions(stockCodes);
+  }
+}
+
+// 실시간 데이터 구독 업데이트 함수
+async function updateRealTimeSubscriptions(stockCodes) {
+  try {
+    // 백그라운드에 실시간 데이터 구독 업데이트 요청
+    await chrome.runtime.sendMessage({
+      type: "START_REAL_TIME",
+      data: stockCodes,
+    });
+
+    console.log(`실시간 데이터 구독 설정: ${stockCodes.length}개 종목`);
+  } catch (error) {
+    console.error("실시간 데이터 구독 설정 실패:", error);
+  }
 }
 
 export function getFilteredStocks() {

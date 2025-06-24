@@ -5,13 +5,19 @@
   border-collapse: collapse;
   font-size: 13px;
   table-layout: fixed;
+  /**border: 2px solid #ff0000; /* 빨간색 실선으로 테이블 전체 테두리 */
+  margin-top: 5px; /* 테이블 상단 마진 (선택사항) */
 }
 .stock-table th,
 .stock-table td {
-  padding: 6px 4px;
+  padding: 7px 4px;
   text-align: left;
   border-bottom: 1px solid #cfcfcf;
   min-width: 70px;
+  height: 50px;
+  line-height: 1.2;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 .stock-table th {
   cursor: pointer;
@@ -19,6 +25,7 @@
   position: relative;
   white-space: nowrap;
   font-size: 13px;
+  height: 35px;
 }
 .stock-table th:nth-child(1),
 .stock-table td:nth-child(1) {
@@ -46,7 +53,9 @@
 .stock-table td:first-child {
   width: 150px;
   text-align: left;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   word-break: keep-all;
 }
 .stock-table th:nth-child(1) {
@@ -107,7 +116,7 @@
   text-align: right;
 }
 .arrow {
-  font-size: 13px;
+  font-size: 10px;
   margin-left: 2px;
 }
 .change-price {
@@ -117,7 +126,7 @@
   text-align: right;
 }
 .change-rate {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
   text-align: right;
 }
