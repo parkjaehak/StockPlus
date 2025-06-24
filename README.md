@@ -1,77 +1,5 @@
 # StockPlus - 한국투자 Open API 기반 주식 시세 현황
 
-## 프로젝트 구조
-
-```
-stock-view-chrome/
-  css/
-    layout.css         # 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
-    table.css          # 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
-    components.css     # 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시 등
-    common.css         # 볼드, 숨김, 중앙정렬 등 공통 유틸리티
-  js/
-    background/
-      apiService.js      # API 호출 및 조건검색, 종목 데이터 관리
-      background.js      # 크롬 확장 백그라운드 스크립트
-      config.js          # API/환경변수 설정
-      env.example.js     # 환경변수 예시 (실제 사용시 env.js로 복사)
-      env.js             # 실제 환경변수 (개인정보, git에 올리지 않음)
-      messageHandler.js  # 백그라운드 메시지 처리
-      realTimeManager.js # 실시간 체결가 웹소켓 관리
-      tokenManager.js    # 토큰 관리
-    popup/
-      dataManager.js     # 데이터 변환, API 호출, 실시간 데이터 관리
-      popup.js           # 팝업 진입점, 이벤트 바인딩
-      stockSymbols.js    # 조건검색 결과 종목 리스트 관리
-      uiManager.js       # UI 렌더링 및 테이블/알림 등 관리
-  manifest.json          # 크롬 확장 매니페스트
-  popup.html             # 팝업 UI
-  stockplus_logo.png     # 로고
-  README.md              # 프로젝트 설명
-```
-
-## 주요 파일 역할
-
-- **layout.css**: 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
-- **table.css**: 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
-- **components.css**: 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시 등
-- **common.css**: 볼드, 숨김, 중앙정렬 등 공통 유틸리티
-- **uiManager.js**: UI 렌더링, 테이블/알림/로딩 등 관리
-- **dataManager.js**: 데이터 변환, API 호출, 실시간 데이터 관리
-- **stockSymbols.js**: 조건검색 결과 종목 리스트 관리 (붙여넣기/자동 변환 코드 포함)
-- **apiService.js**: 조건검색 기반 종목 조회, 실시간 체결가 API 관리
-- **realTimeManager.js**: 실시간 체결가 웹소켓 구독/파싱/전송
-- **tokenManager.js**: API 토큰 관리
-- **messageHandler.js**: 백그라운드 메시지 처리
-- **popup.js**: 팝업 진입점, 이벤트 바인딩
-
-## 환경변수 관리
-
-- `js/background/env.example.js`를 `env.js`로 복사 후 실제 API 키, HTS ID 입력
-- `config.js`에서 환경변수 import
-- `env.js`는 git에 올리지 않음(개인정보 보호)
-
-## stockSymbols.js 관리법
-
-- 조건검색 결과(종목명/코드 리스트)를 콘솔에서 복사해 붙여넣기
-- 자동 변환 코드 예시:
-  ```js
-  // 콘솔에서 [{name: "삼성전자", code: "005930"}, ...] 형태로 붙여넣기
-  export const stockSymbols = {
-    KOSPI: [...],
-    KOSDAQ: [...]
-  };
-  ```
-
-## 스타일 분리 방식
-
-- style.css는 삭제, 모든 스타일은 layout.css, table.css, components.css, common.css로 분리 관리
-- popup.html에서 4개 CSS 파일을 모두 불러옴
-
-## 기타
-
-- 실시간 체결가 웹소켓, 조건검색 기반 종목 조회, 데이터 변환 최적화, UI/스타일 개선 등 실무적 팁은 코드 주석 및 각 파일 참고
-
 ## 소개
 
 한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다.
@@ -121,30 +49,23 @@ stock-view-chrome/
    ```
 
 3. **API 키 발급**:
-
    - [한국투자증권 개발자센터](https://apiportal.koreainvestment.com/) 접속
    - 회원가입 및 로그인
    - "Open API 신청" 메뉴에서 API 신청
    - APP KEY와 APP SECRET 발급
+   - 실시간 API 신청 및 승인 절차 진행
 
-4. **실시간 API 권한 설정**:
-
-- 개발자센터에서 실시간 API 신청 및 승인 절차 진행
-
-### 파일 구조 설명
-
-- **`env.js`**: 실제 API 키와 시크릿 (Git 제외)
-- **`env.example.js`**: API 키 설정 예시 (Git 포함)
-- **`config.js`**: API 설정 및 엔드포인트 (Git 포함, env.js에서 키를 가져옴)
-
-## 프로젝트 파일 구조 및 역할
+## 프로젝트 구조
 
 ```
 stock-view-chrome/
 ├── manifest.json                # 크롬 확장 프로그램 설정 파일
 ├── popup.html                  # 팝업 UI의 HTML
 ├── css/
-│   └── style.css               # 팝업 및 확장 UI 스타일시트
+│   ├── layout.css              # 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
+│   ├── table.css               # 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
+│   ├── components.css          # 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시 등
+│   └── common.css              # 볼드, 숨김, 중앙정렬 등 공통 유틸리티
 ├── js/
 │   ├── background/
 │   │   ├── background.js       # 백그라운드 서비스 워커(메인 진입점)
@@ -159,62 +80,51 @@ stock-view-chrome/
 │       ├── popup.js            # 팝업 메인 로직, 이벤트 바인딩
 │       ├── uiManager.js        # UI 렌더링, 테이블/정렬/스크롤 등
 │       ├── dataManager.js      # 데이터 변환, API 호출, 검색/필터링
-│       └── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성)
+│       ├── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성)
+│       └── simple-scrollbar.js # 커스텀 스크롤바 라이브러리
 ├── stockplus_logo.png          # 확장 프로그램 아이콘
 └── README.md                   # 프로젝트 설명 파일
 ```
 
-### 주요 파일 역할
+## 주요 파일 역할
 
-- **manifest.json**: 크롬 확장 프로그램의 메타 정보 및 권한 설정
-- **popup.html / css/style.css**: 팝업 UI와 스타일
-- **js/background/config.js**: API 엔드포인트, 환경설정, HTS_USER_ID 등 관리
-- **js/background/env.js**: 실제 API 키, HTS_USER_ID 등 민감정보 (Git에 포함 X)
-- **js/background/env.example.js**: 환경변수 예시 (복사해서 env.js로 사용)
-- **js/background/tokenManager.js**: API 토큰 및 실시간 승인키 관리
-- **js/background/apiService.js**: 한국투자증권 OpenAPI 호출, 원본 데이터 반환
-- **js/background/realTimeManager.js**: WebSocket 실시간 데이터 연결/구독/해제
-- **js/background/messageHandler.js**: 백그라운드 메시지 분기 및 서비스 호출
-- **js/popup/popup.js**: 팝업 UI의 메인 진입점, 이벤트 바인딩
-- **js/popup/uiManager.js**: UI 렌더링, 테이블/정렬/스크롤 등 화면 표시 담당
-- **js/popup/dataManager.js**: API 데이터 변환, 검색/필터, UI에 데이터 전달
-- **js/popup/stockSymbols.js**: KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
+### 📁 Background Scripts (js/background/)
 
----
+- **background.js**: 크롬 확장 백그라운드 스크립트, 메인 진입점
+- **config.js**: API 엔드포인트, 환경설정 관리
+- **env.js**: 실제 API 키, HTS_USER_ID 등 민감정보 (Git 제외)
+- **env.example.js**: 환경변수 예시 (복사해서 env.js로 사용)
+- **tokenManager.js**: API 토큰 및 실시간 승인키 관리
+- **apiService.js**: 한국투자증권 OpenAPI 호출, 조건검색, 종목 데이터 관리
+- **realTimeManager.js**: WebSocket 실시간 데이터 연결/구독/해제
+- **messageHandler.js**: 백그라운드 메시지 분기 및 서비스 호출
 
-이 구조에 따라 각 파일이 분리되어 있어 유지보수와 확장성이 뛰어납니다.
+### 📁 Popup Scripts (js/popup/)
 
-## 모듈별 역할
+- **popup.js**: 팝업 UI의 메인 진입점, 이벤트 바인딩
+- **uiManager.js**: UI 렌더링, 테이블/정렬/스크롤 등 화면 표시 담당
+- **dataManager.js**: API 데이터 변환, 검색/필터, UI에 데이터 전달
+- **stockSymbols.js**: KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
+- **simple-scrollbar.js**: 커스텀 스크롤바 라이브러리
 
-### 📁 js/config.js
+### 📁 Styles (css/)
 
-- API 설정 정보 (개발자 공통 키)
-- API 엔드포인트 정의
-- Git에서 제외되어 보안 유지
+- **layout.css**: 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
+- **table.css**: 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
+- **components.css**: 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시 등
+- **common.css**: 볼드, 숨김, 중앙정렬 등 공통 유틸리티
 
-### 📁 js/tokenManager.js
+## stockSymbols.js 관리법
 
-- API 접근 토큰 발급 및 관리
-- 실시간 데이터용 승인키 관리
-- 토큰 만료 시간 추적 및 자동 갱신
-
-### 📁 js/apiService.js
-
-- REST API 호출을 통한 주식 데이터 조회
-- API 응답 처리 및 에러 핸들링
-- Rate limiting 적용
-
-### 📁 js/realTimeManager.js
-
-- WebSocket 연결 관리 및 재연결 처리
-- 실시간 주식 데이터 구독/구독 해제
-- 실시간 데이터 파싱 및 변환
-
-### 📁 js/messageHandler.js
-
-- Chrome Extension 메시지 처리 및 라우팅
-- 각 메시지 타입별 적절한 서비스 호출
-- 응답 데이터 포맷팅 및 에러 처리
+- 조건검색 결과(종목명/코드 리스트)를 콘솔에서 복사해 붙여넣기
+- 자동 변환 코드 예시:
+  ```js
+  // 콘솔에서 [{name: "삼성전자", code: "005930"}, ...] 형태로 붙여넣기
+  export const stockSymbols = {
+    KOSPI: [...],
+    KOSDAQ: [...]
+  };
+  ```
 
 ## API 연동 구조
 
@@ -238,25 +148,12 @@ stock-view-chrome/
 
 ## 개발 가이드
 
-### API 설정 수정
-
-`js/config.js`에서 API 설정을 수정할 수 있습니다:
-
-```javascript
-export const API_CONFIG = {
-  APP_KEY: "YOUR_APP_KEY_HERE",
-  APP_SECRET: "YOUR_APP_SECRET_HERE",
-  BASE_URL: "https://openapi.koreainvestment.com:9443",
-  WS_URL: "ws://ops.koreainvestment.com:21000",
-};
-```
-
 ### 새로운 기능 추가
 
 1. 필요한 모듈에 기능 추가
 2. `messageHandler.js`에 메시지 핸들러 추가
 3. `popup.js`에 UI 로직 추가
-4. `css/style.css`에 스타일 추가
+4. 해당 CSS 파일에 스타일 추가
 
 ### 모듈 구조의 장점
 
@@ -276,7 +173,7 @@ export const API_CONFIG = {
 
 1. **API 키 보안**:
 
-   - `js/config.js` 파일이 `.gitignore`에 포함되어 Git에 올라가지 않음
+   - `js/background/env.js` 파일이 `.gitignore`에 포함되어 Git에 올라가지 않음
    - 개발자만 API 키를 관리하고 사용자들은 공통 키 사용
 
 2. **API 호출 제한**: 한국투자증권 API는 호출 횟수 제한이 있습니다.
