@@ -216,8 +216,8 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
     }
 
     // 초기 렌더링 - 첫 페이지만 표시
-    const initialStocks = getFilteredStocks().slice(0, getPageSize());
-    renderTable(initialStocks);
+    const allStocks = getFilteredStocks();
+    renderTable(allStocks);
     updateHeaderArrows();
     // 검색 결과는 실시간 구독에서 제외
     stopRealTimeData();
@@ -268,9 +268,8 @@ export async function filterByMarket(marketSelect) {
     }
 
     // 초기 렌더링 - 첫 페이지만 표시
-    const initialStocks = getFilteredStocks().slice(0, getPageSize());
-    console.log(`초기 렌더링: ${initialStocks.length}개 종목 표시`);
-    renderTable(initialStocks);
+    const allStocks = getFilteredStocks();
+    renderTable(allStocks);
     updateHeaderArrows();
   } catch (error) {
     console.error("시가총액 상위 종목 조회 중 오류:", error);

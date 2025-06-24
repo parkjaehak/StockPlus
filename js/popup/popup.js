@@ -32,7 +32,6 @@ async function initialRender() {
 function setupEventListeners() {
   const marketSelect = document.getElementById("market-select");
   const searchInput = document.getElementById("search");
-  // const tableBody = document.querySelector(".table-body"); // 기존 코드 주석처리
 
   // 마켓 선택 이벤트
   marketSelect.addEventListener("change", () => filterByMarket(marketSelect));
@@ -43,20 +42,6 @@ function setupEventListeners() {
     500
   );
   searchInput.addEventListener("input", debouncedFilterStocks);
-
-  // 무한 스크롤 이벤트 - ss-content에 연결
-  setTimeout(() => {
-    const ssContent = document.querySelector(".table-body .ss-content");
-    if (ssContent) {
-      ssContent.addEventListener("scroll", (e) => {
-        const { scrollTop, clientHeight, scrollHeight } = e.target;
-        if (scrollTop + clientHeight >= scrollHeight - 20) {
-          console.log("스크롤 이벤트 발생: 무한스크롤 트리거");
-          loadMore();
-        }
-      });
-    }
-  }, 100); // simple-scrollbar 적용 후 ss-content가 생성되도록 약간의 딜레이
 
   // 페이지 언로드시 실시간 데이터 중지
   window.addEventListener("beforeunload", () => {
