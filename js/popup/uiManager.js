@@ -91,7 +91,9 @@ export function updateHeaderArrows() {
 
 // 주식 행 업데이트
 export function updateStockRow(stockCode) {
+  console.log("[uiManager] updateStockRow 호출:", stockCode);
   const row = document.querySelector(`tr[data-code='${stockCode}']`);
+  console.log("[uiManager] row 찾기 결과:", row);
   if (!row) return;
 
   const data = realTimeData.get(stockCode);
@@ -239,22 +241,20 @@ export function loadMore() {
   const start = currentPage * PAGE_SIZE;
   const end = nextPage * PAGE_SIZE;
 
+  console.log(
+    `loadMore 호출: total=${total}, currentPage=${currentPage}, start=${start}, end=${end}`
+  );
+
   if (start >= total) {
     console.log("모든 데이터를 로드했습니다.");
     return;
   }
 
-  console.log(
-    `추가 데이터 로드: ${start + 1}~${Math.min(end, total)} / ${total}`
-  );
-
   // 새로운 종목들 렌더링
   const newStocks = filteredStocks.slice(start, end);
+  console.log(`새로 로드할 종목 수: ${newStocks.length}`);
   renderTable(newStocks, true);
   currentPage = nextPage;
-
-  // 스크롤 시에는 실시간 구독 업데이트하지 않음
-  // 이미 setFilteredStocks에서 전체 종목에 대한 구독이 설정되어 있음
 }
 
 // 데이터 관리 함수들
@@ -277,8 +277,6 @@ async function updateRealTimeSubscriptions(stockCodes) {
       type: "START_REAL_TIME",
       data: stockCodes,
     });
-
-    console.log(`실시간 데이터 구독 설정: ${stockCodes.length}개 종목`);
   } catch (error) {
     console.error("실시간 데이터 구독 설정 실패:", error);
   }
@@ -309,4 +307,16 @@ export function setCurrentPage(page) {
 
 export function getPageSize() {
   return PAGE_SIZE;
+}
+
+// 스크롤 위치 초기화 함수
+export function resetScrollPosition() {
+  const tableBody = document.querySelector(".table-body");
+  if (tableBody) {
+    tableBody.scrollTop = 0;
+  }
+  const ssContent = document.querySelector(".table-body .ss-content");
+  if (ssContent) {
+    ssContent.scrollTop = 0;
+  }
 }

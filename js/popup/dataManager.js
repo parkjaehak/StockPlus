@@ -8,6 +8,7 @@ import {
   setFilteredStocks,
   getFilteredStocks,
   getPageSize,
+  resetScrollPosition,
 } from "./uiManager.js";
 
 // 검색 종목 조회
@@ -167,6 +168,10 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
   }
 
   showLoading(true);
+
+  // 검색 시 스크롤 위치 초기화
+  resetScrollPosition();
+
   try {
     // 선택된 마켓에 따라 해당 마켓의 종목만 검색
     const selectedMarket = marketSelect.value;
@@ -210,7 +215,9 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
       setFilteredStocks([]);
     }
 
-    renderTable(getFilteredStocks().slice(0, getPageSize()));
+    // 초기 렌더링 - 첫 페이지만 표시
+    const initialStocks = getFilteredStocks().slice(0, getPageSize());
+    renderTable(initialStocks);
     updateHeaderArrows();
     // 검색 결과는 실시간 구독에서 제외
     stopRealTimeData();
@@ -225,6 +232,9 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
 export async function filterByMarket(marketSelect) {
   const market = marketSelect.value;
   showLoading(true);
+
+  // 마켓 변경 시 스크롤 위치 초기화
+  resetScrollPosition();
 
   try {
     // callApi 함수 사용
@@ -257,7 +267,10 @@ export async function filterByMarket(marketSelect) {
       setFilteredStocks([]);
     }
 
-    renderTable(getFilteredStocks().slice(0, getPageSize()));
+    // 초기 렌더링 - 첫 페이지만 표시
+    const initialStocks = getFilteredStocks().slice(0, getPageSize());
+    console.log(`초기 렌더링: ${initialStocks.length}개 종목 표시`);
+    renderTable(initialStocks);
     updateHeaderArrows();
   } catch (error) {
     console.error("시가총액 상위 종목 조회 중 오류:", error);

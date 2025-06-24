@@ -118,3 +118,18 @@
   height: 40px;
   animation: spin 1s linear infinite;
 }
+.search-container {
+  height: 35px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#market-select,
+#search {
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}

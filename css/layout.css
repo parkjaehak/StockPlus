@@ -2,73 +2,56 @@
 
 .popup-container {
   width: 380px;
-  height: 560px; /* 고정 높이 설정 */
-  padding: 15px 0px 0px 0px; /*상하좌우*/
+  height: 580px;
+  padding: 15px 0 0 0;
+  margin: 0;
   background: #fff;
   font-family: "Segoe UI", Arial, sans-serif;
-  overflow: hidden; /* 스크롤 제거하고 고정 크기 */
-  scrollbar-width: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   position: relative;
-  scrollbar-gutter: stable;
   /**border: 1px solid #0000ff; /* 파란색 실선으로 팝업 컨테이너 테두리 */
-}
-
-/* 스크롤바 관련 */
-.popup-container::-webkit-scrollbar {
-  width: 9px; /* 세로 스크롤바 두께 */
-  height: 9px; /* 가로 스크롤바 두께 */
-  background: transparent;
-  border-radius: 4px;
-}
-.popup-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  opacity: 1;
-  transition: background 0.3s;
-}
-.popup-container::-webkit-scrollbar-track {
-  background: transparent;
 }
 
 /* 테이블 컨테이너에 스크롤 적용 */
 .table-container {
-  overflow-y: auto;
-  height: calc(100% - 30px); /* 더 많은 하단 여백 확보 */
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  /**border: 1px solid #00ff00; /* 초록색 실선으로 컨테이너 테두리 */
-  padding: 5px 5px 15px 5px; /* 하단 패딩 증가 */
-  box-sizing: border-box; /* 패딩과 보더를 크기에 포함 */
-  margin-bottom: 10px; /* 하단 마진 추가 */
+  padding: 0 0 5px 0;
+  margin: 0;
+  overflow: hidden;
+  /**border: 2px solid #00ff00; /* 초록색 실선으로 컨테이너 테두리 */
+  display: flex;
+  flex-direction: column;
 }
 
-.table-container::-webkit-scrollbar {
-  width: 6px;
-  background: transparent;
+/* 테이블 헤더 (고정) */
+.table-header {
+  flex-shrink: 0;
+  background: #fff;
+  z-index: 10;
+  position: relative;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
 }
 
-.table-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: transparent;
+/* 테이블 본문 (스크롤) */
+.table-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  margin: 3px 0 0 0;
+  padding-right: 0px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .header {
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
-}
-
-#market-select,
-#search {
-  padding: 8px 10px; /* 상하 패딩 증가 */
-  font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  box-sizing: border-box; /* 패딩과 보더를 높이에 포함 */
 }
 
 /* API 설정 UI 스타일 */
@@ -101,4 +84,67 @@
   display: flex;
   align-items: center;
   gap: 8px; /* 요소들 사이 간격 */
+}
+
+.ss-wrapper {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  float: left;
+}
+
+.ss-content {
+  height: 100%;
+  width: 100%;
+  padding: 0 0 0 0;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: scroll;
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ss-content.rtl {
+  width: calc(100% + 18px);
+  right: auto;
+}
+
+.ss-scroll {
+  position: relative;
+  background: rgba(0, 0, 0, 0.15);
+  width: 9px;
+  border-radius: 4px;
+  top: 0;
+  z-index: 2;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s linear;
+}
+
+.white-preview .ss-scroll {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-preview .ss-scroll {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ss-hidden {
+  display: none;
+}
+
+.ss-container:hover .ss-scroll,
+.ss-container:active .ss-scroll {
+  opacity: 1;
+}
+
+.ss-grabbed {
+  -o-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }

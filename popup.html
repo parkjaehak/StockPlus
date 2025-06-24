@@ -27,19 +27,41 @@
         <div class="loader"></div>
       </div>
       <div class="table-container">
-        <table class="stock-table">
-          <thead>
-            <tr>
-              <th>종목명</th>
-              <th>현재가</th>
-              <th>전일대비</th>
-              <th>거래대금</th>
-            </tr>
-          </thead>
-          <tbody id="stock-tbody"></tbody>
-        </table>
+        <!-- 테이블 헤더 (고정) -->
+        <div class="table-header">
+          <table class="stock-table">
+            <colgroup>
+              <col style="width: 110px" />
+              <col style="width: 80px" />
+              <col style="width: 80px" />
+              <col style="width: 80px" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>종목명</th>
+                <th>현재가</th>
+                <th>전일대비</th>
+                <th>거래대금</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+
+        <!-- 테이블 본문 (스크롤) -->
+        <div class="table-body" ss-container>
+          <table class="stock-table">
+            <colgroup>
+              <col style="width: 110px" />
+              <col style="width: 80px" />
+              <col style="width: 80px" />
+              <col style="width: 80px" />
+            </colgroup>
+            <tbody id="stock-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
+    <script src="js/popup/simple-scrollbar.js"></script>
     <script type="module" src="js/popup/popup.js"></script>
   </body>
 </html>

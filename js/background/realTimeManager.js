@@ -37,6 +37,7 @@ export class RealTimeManager {
 
       // WebSocket 연결 완료 후 구독 시작
       this.ws.onopen = () => {
+        console.log("웹소켓 연결 성공");
         this.reconnectAttempts = 0;
         // 기존 구독 상태와 새로운 종목 목록을 비교하여
         // 필요한 구독/해지만 수행하도록 updateSubscriptions를 직접 호출합니다.
