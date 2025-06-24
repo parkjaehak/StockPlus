@@ -142,20 +142,6 @@
           ? (_this.el.scrollTop / maxScroll) * (100 - thumbHeight)
           : 0;
 
-      // 디버깅용 로그 추가
-      console.log(
-        "[SimpleScrollbar.moveBar] totalHeight:",
-        totalHeight,
-        "ownHeight:",
-        ownHeight,
-        "scrollRatio:",
-        this.scrollRatio,
-        "thumbHeight:",
-        thumbHeight,
-        "top:",
-        top
-      );
-
       raf(function () {
         // Hide scrollbar if no scrolling is possible
         if (_this.scrollRatio >= 1) {

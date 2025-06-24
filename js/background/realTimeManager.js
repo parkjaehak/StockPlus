@@ -11,28 +11,8 @@ export class RealTimeManager {
     this.reconnectDelay = 5000;
   }
 
-  connect(approvalKey) {
-    // 승인키 존재 여부만 확인
-    if (!approvalKey) {
-      console.error("승인키가 필요합니다.");
-      return;
-    }
-
-    if (this.ws) {
-      this.ws.close();
-    }
-
-    // 승인키를 URL에 포함하여 연결
-    const wsUrl = `${API_CONFIG.WS_URL}?approval_key=${approvalKey}`;
-    this.ws = new WebSocket(wsUrl);
-    this.setupWebSocketHandlers(approvalKey);
-  }
-
   async connectAndSubscribe(approvalKey, stockCodes) {
     return new Promise((resolve, reject) => {
-      // 연결 완료 후 구독을 시작하기 위한 콜백 설정
-      const originalOnOpen = this.ws?.onopen;
-
       this.connect(approvalKey);
 
       // WebSocket 연결 완료 후 구독 시작
@@ -235,6 +215,23 @@ export class RealTimeManager {
 
     toUnsubscribe.forEach((code) => this.unsubscribe(code, approvalKey));
     toSubscribe.forEach((code) => this.subscribe(code, approvalKey));
+  }
+
+  connect(approvalKey) {
+    // 승인키 존재 여부만 확인
+    if (!approvalKey) {
+      console.error("승인키가 필요합니다.");
+      return;
+    }
+
+    if (this.ws) {
+      this.ws.close();
+    }
+
+    // 승인키를 URL에 포함하여 연결
+    const wsUrl = `${API_CONFIG.WS_URL}?approval_key=${approvalKey}`;
+    this.ws = new WebSocket(wsUrl);
+    this.setupWebSocketHandlers(approvalKey);
   }
 
   disconnect() {

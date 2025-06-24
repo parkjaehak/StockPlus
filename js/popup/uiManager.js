@@ -91,9 +91,7 @@ export function updateHeaderArrows() {
 
 // 주식 행 업데이트
 export function updateStockRow(stockCode) {
-  console.log("[uiManager] updateStockRow 호출:", stockCode);
   const row = document.querySelector(`tr[data-code='${stockCode}']`);
-  console.log("[uiManager] row 찾기 결과:", row);
   if (!row) return;
 
   const data = realTimeData.get(stockCode);
@@ -240,10 +238,6 @@ export function loadMore() {
   const nextPage = currentPage + 1;
   const start = currentPage * PAGE_SIZE;
   const end = nextPage * PAGE_SIZE;
-
-  console.log(
-    `loadMore 호출: total=${total}, currentPage=${currentPage}, start=${start}, end=${end}`
-  );
 
   if (start >= total) {
     console.log("모든 데이터를 로드했습니다.");

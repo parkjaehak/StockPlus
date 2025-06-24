@@ -78,7 +78,7 @@ export async function callApi(type, data) {
   }
 }
 
-// 실시간 데이터 시작
+//@Deprecated 실시간 데이터 시작 (추후 삭제)
 export async function startRealTimeData(stockCodes) {
   const maxRetries = 3;
   let retryCount = 0;
@@ -220,7 +220,7 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
     renderTable(allStocks);
     updateHeaderArrows();
     // 검색 결과는 실시간 구독에서 제외
-    stopRealTimeData();
+    //stopRealTimeData();
   } catch (error) {
     console.error("검색 중 오류:", error);
   } finally {
@@ -254,14 +254,6 @@ export async function filterByMarket(marketSelect) {
       }));
 
       setFilteredStocks(stocks);
-
-      const stockCodes = stocks.filter((s) => s.code).map((s) => s.code);
-      if (stockCodes.length > 0) {
-        // 메시지 리스너 설정을 위한 짧은 지연
-        setTimeout(() => {
-          startRealTimeData(stockCodes);
-        }, 100);
-      }
     } else {
       console.error("시가총액 상위 종목 조회 실패: 데이터가 없습니다.");
       setFilteredStocks([]);
