@@ -119,17 +119,62 @@
   animation: spin 1s linear infinite;
 }
 .search-container {
-  height: 35px;
-  margin-bottom: 0;
+  height: 32px;
+  margin: 5px 0 5px 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
 }
-#market-select,
-#search {
-  padding: 8px 10px;
+
+.search-input-container {
+  position: relative;
+  width: 180px;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 30%;
+  color: #3e3c3c;
+  font-size: 12px;
+  z-index: 1;
+}
+.search-clear {
+  position: absolute;
+  right: 7px;
+  top: 40%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  z-index: 2;
+  user-select: none;
+}
+.search-clear:hover {
+  color: #000000;
+}
+
+#market-select {
+  height: 32px;
+  padding: 4px 0px 4px 3px;
   font-size: 13px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px;
+  border-radius: 6px;
+  margin-bottom: 0;
+  background-color: #fff;
+}
+
+#search {
+  height: 100%;
+  width: 100%;
+  margin-bottom: 0;
+  padding: 4px 32px 4px 28px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
 }

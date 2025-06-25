@@ -3,8 +3,8 @@
 .popup-container {
   width: 380px;
   height: 580px;
-  padding: 15px 0 0 0;
-  margin: 0;
+  padding: 3px 0 0 0;
+  margin: 10px 0 10px 0;
   background: #fff;
   font-family: "Segoe UI", Arial, sans-serif;
   overflow: hidden;
@@ -17,13 +17,13 @@
 /* 테이블 컨테이너에 스크롤 적용 */
 .table-container {
   width: 100%;
-  padding: 0 0 5px 0;
-  margin: 0;
+  height: auto;
+  max-height: 100%;
+  padding: 0 0 0 0;
+  margin: 5px 0 0 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: auto;
-  max-height: 100%;
   /**border: 2px solid #00ff00; /* 초록색 실선으로 컨테이너 테두리 */
 }
 
@@ -46,6 +46,7 @@
   -ms-overflow-style: none;
   height: auto;
   max-height: 100%;
+  /**border: 2px solid #0000ff;**/
 }
 
 .header {
@@ -75,15 +76,6 @@
   font-size: 14px;
   font-weight: 600;
   color: #333;
-}
-
-/* 검색 컨테이너 높이 조정 */
-.search-container {
-  height: 35px; /* 검색 영역 높이 증가 */
-  margin-bottom: 0px;
-  display: flex;
-  align-items: center;
-  gap: 8px; /* 요소들 사이 간격 */
 }
 
 .ss-wrapper {

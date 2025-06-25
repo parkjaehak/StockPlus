@@ -47,6 +47,19 @@ function setupEventListeners() {
   window.addEventListener("beforeunload", () => {
     stopRealTimeData();
   });
+
+  // 검색창 전체삭제(X) 버튼 기능
+  const searchClear = document.getElementById("search-clear");
+  if (searchInput && searchClear) {
+    searchInput.addEventListener("input", function () {
+      searchClear.style.display = this.value ? "block" : "none";
+    });
+    searchClear.addEventListener("click", function () {
+      searchInput.value = "";
+      searchInput.dispatchEvent(new Event("input"));
+      searchInput.focus();
+    });
+  }
 }
 
 // 초기화 실행

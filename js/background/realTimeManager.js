@@ -82,12 +82,12 @@ export class RealTimeManager {
 
     // 구독 성공 확인
     if (parsed.body?.msg1 === "SUBSCRIBE SUCCESS") {
-      const trKey =
-        parsed.header?.tr_key ||
-        parsed.body?.input?.tr_key ||
-        parsed.body?.tr_key ||
-        "알수없음";
-      console.log(`실시간 데이터 구독 성공: 종목코드=${trKey}`);
+      // const trKey =
+      //   parsed.header?.tr_key ||
+      //   parsed.body?.input?.tr_key ||
+      //   parsed.body?.tr_key ||
+      //   "알수없음";
+      console.log(`실시간 데이터 구독 성공`);
       // 복호화 키 저장 (필요시)
       if (parsed.body.output) {
         this.iv = parsed.body.output.iv;
@@ -183,7 +183,7 @@ export class RealTimeManager {
     if (!this.isWebSocketReady()) return;
 
     const message = this.buildSubscriptionMessage(stockCode, approvalKey, "1");
-    console.log(`[구독 요청] 종목코드=${stockCode}`);
+    //console.log(`[구독 요청] 종목코드=${stockCode}`);
     this.ws.send(message);
     this.subscribedStocks.add(stockCode);
   }

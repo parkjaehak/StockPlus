@@ -21,7 +21,13 @@
           <option value="KOSPI">KOSPI</option>
           <option value="KOSDAQ">KOSDAQ</option>
         </select>
-        <input type="text" id="search" placeholder="종목 검색" />
+        <div class="search-input-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="search" placeholder="종목 검색" />
+          <span class="search-clear" id="search-clear" style="display: none"
+            >&times;</span
+          >
+        </div>
       </div>
       <div id="loader" class="loader-container">
         <div class="loader"></div>
