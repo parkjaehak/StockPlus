@@ -279,21 +279,18 @@ export function sortStocks(key) {
 export function setFilteredStocks(stocks) {
   filteredStocks = stocks;
   currentPage = 1;
-
-  // 초기 데이터 설정 시 실시간 데이터 구독 시작
-  if (stocks.length > 0) {
-    const stockCodes = stocks.map((stock) => stock.code);
-    updateRealTimeSubscriptions(stockCodes);
-  }
+  // 구독 요청은 handleRowVisibility에서만 처리
 }
 
 // 실시간 데이터 구독 업데이트 함수
 async function updateRealTimeSubscriptions(stockCodes) {
   try {
+    // 최대 41개까지만 구독 요청
+    const limitedCodes = Array.from(stockCodes).slice(0, 41);
     // 백그라운드에 실시간 데이터 구독 업데이트 요청
     await chrome.runtime.sendMessage({
       type: "START_REAL_TIME",
-      data: stockCodes,
+      data: limitedCodes,
     });
   } catch (error) {
     console.error("실시간 데이터 구독 설정 실패:", error);

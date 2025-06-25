@@ -78,12 +78,6 @@ export class RealTimeManager {
     // 구독 성공 확인
     if (parsed.body?.msg1 === "SUBSCRIBE SUCCESS") {
       if (parsed.body.output) {
-        const trKey =
-          parsed.header?.tr_key ||
-          parsed.body?.input?.tr_key ||
-          parsed.body?.tr_key ||
-          "알수없음";
-        console.log(`API 서버로부터 온 구독 성공=${trKey}`);
         this.iv = parsed.body.output.iv;
         this.key = parsed.body.output.key;
       }
@@ -142,7 +136,6 @@ export class RealTimeManager {
         .catch((error) => {
           // popup이 닫혀있거나 응답할 수 없는 경우 무시
           if (error.message.includes("Receiving end does not exist")) {
-            // 정상적인 상황이므로 로그 출력하지 않음
             return;
           }
           console.error("실시간 데이터 전송 오류:", error);
@@ -170,7 +163,7 @@ export class RealTimeManager {
   subscribe(stockCode, approvalKey) {
     if (!this.isWebSocketReady()) return;
     const message = this.buildSubscriptionMessage(stockCode, approvalKey, "1");
-    //console.log(`[구독 시작]=${stockCode}`);
+    //console.log(`[구독 시작]`);
     this.ws.send(message);
     this.subscribedStocks.add(stockCode);
   }
@@ -178,7 +171,7 @@ export class RealTimeManager {
   unsubscribe(stockCode, approvalKey) {
     if (!this.isWebSocketReady()) return;
     const message = this.buildSubscriptionMessage(stockCode, approvalKey, "2");
-    console.log(`[메모리에서 구독 해제]=${stockCode}`);
+    //console.log(`[구독 해제]`);
     this.ws.send(message);
     this.subscribedStocks.delete(stockCode);
   }
@@ -202,10 +195,8 @@ export class RealTimeManager {
   updateSubscriptions(newStockCodes, approvalKey) {
     const newSet = new Set(newStockCodes);
     const oldSet = this.subscribedStocks;
-
     const toUnsubscribe = [...oldSet].filter((code) => !newSet.has(code));
     const toSubscribe = [...newSet].filter((code) => !oldSet.has(code));
-
     toUnsubscribe.forEach((code) => this.unsubscribe(code, approvalKey));
     toSubscribe.forEach((code) => this.subscribe(code, approvalKey));
   }
@@ -216,11 +207,9 @@ export class RealTimeManager {
       console.error("승인키가 필요합니다.");
       return;
     }
-
     if (this.ws) {
       this.ws.close();
     }
-
     // 승인키를 URL에 포함하여 연결
     const wsUrl = `${API_CONFIG.WS_URL}?approval_key=${approvalKey}`;
     this.ws = new WebSocket(wsUrl);
