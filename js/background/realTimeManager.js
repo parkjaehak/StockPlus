@@ -19,8 +19,6 @@ export class RealTimeManager {
       this.ws.onopen = () => {
         console.log("웹소켓 연결 성공");
         this.reconnectAttempts = 0;
-        // 기존 구독 상태와 새로운 종목 목록을 비교하여
-        // 필요한 구독/해지만 수행하도록 updateSubscriptions를 직접 호출합니다.
         this.updateSubscriptions(stockCodes || [], approvalKey);
 
         resolve();
@@ -63,10 +61,8 @@ export class RealTimeManager {
 
   handleWebSocketMessage(event) {
     if (event.data.startsWith("{")) {
-      //console.log("Json: ", event.data);
       this.handleJsonMessage(event.data);
     } else {
-      //console.log("Text: ", event.data);
       this.parseRealTimeData(event.data);
     }
   }
@@ -79,17 +75,15 @@ export class RealTimeManager {
       this.ws.send(data);
       return;
     }
-
     // 구독 성공 확인
     if (parsed.body?.msg1 === "SUBSCRIBE SUCCESS") {
-      // const trKey =
-      //   parsed.header?.tr_key ||
-      //   parsed.body?.input?.tr_key ||
-      //   parsed.body?.tr_key ||
-      //   "알수없음";
-      console.log(`실시간 데이터 구독 성공`);
-      // 복호화 키 저장 (필요시)
       if (parsed.body.output) {
+        const trKey =
+          parsed.header?.tr_key ||
+          parsed.body?.input?.tr_key ||
+          parsed.body?.tr_key ||
+          "알수없음";
+        console.log(`API 서버로부터 온 구독 성공=${trKey}`);
         this.iv = parsed.body.output.iv;
         this.key = parsed.body.output.key;
       }
@@ -130,21 +124,15 @@ export class RealTimeManager {
       return;
     }
 
-    // 한국투자증권 실시간 주식 체결가(H0STCNT0) 응답 데이터 명세 기준
-    // 0: 유가증권 단축 종목코드 (MKSC_SHRN_ISCD)
-    // 2: 주식 현재가 (STCK_PRPR)
-    // 4: 전일 대비 (PRDY_VRSS)
-    // 5: 전일 대비율 (PRDY_CTRT)
-    // 13: 누적 거래량 (ACML_VOL)
     const parsedData = {
-      code: dataFields[0].trim(),
-      price: parseFloat(dataFields[2]),
-      change_price: parseFloat(dataFields[4]),
-      change_rate: parseFloat(dataFields[5]),
-      volume: parseFloat(dataFields[13]),
+      code: dataFields[0].trim(), // 0: 유가증권 단축 종목코드 (MKSC_SHRN_ISCD)
+      price: parseFloat(dataFields[2]), // 2: 주식 현재가 (STCK_PRPR)
+      change_price: parseFloat(dataFields[4]), // 4: 전일 대비 (PRDY_VRSS)
+      change_rate: parseFloat(dataFields[5]), // 5: 전일 대비율 (PRDY_CTRT)
+      volume: parseFloat(dataFields[13]), // 13: 누적 거래량 (ACML_VOL)
     };
 
-    // 실시간 데이터를 popup으로 전송 (오류 처리 추가)
+    // 실시간 데이터를 popup으로 전송
     try {
       chrome.runtime
         .sendMessage({
@@ -181,17 +169,16 @@ export class RealTimeManager {
 
   subscribe(stockCode, approvalKey) {
     if (!this.isWebSocketReady()) return;
-
     const message = this.buildSubscriptionMessage(stockCode, approvalKey, "1");
-    //console.log(`[구독 요청] 종목코드=${stockCode}`);
+    //console.log(`[구독 시작]=${stockCode}`);
     this.ws.send(message);
     this.subscribedStocks.add(stockCode);
   }
 
   unsubscribe(stockCode, approvalKey) {
     if (!this.isWebSocketReady()) return;
-
     const message = this.buildSubscriptionMessage(stockCode, approvalKey, "2");
+    console.log(`[메모리에서 구독 해제]=${stockCode}`);
     this.ws.send(message);
     this.subscribedStocks.delete(stockCode);
   }

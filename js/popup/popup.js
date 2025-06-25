@@ -2,7 +2,6 @@
 
 import {
   renderTableHeader,
-  loadMore,
   setRealTimeData,
   updateStockRow,
 } from "./uiManager.js";

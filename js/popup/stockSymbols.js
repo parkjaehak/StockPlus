@@ -105,6 +105,7 @@ export const stockSymbols = {
     { name: "오리온", code: "271560" },
     { name: "JB금융지주", code: "175330" },
     { name: "SKC", code: "011790" },
+    { name: "현대제철", code: "004020" },
   ],
   KOSDAQ: [
     { name: "알테오젠", code: "196170" },

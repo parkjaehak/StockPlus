@@ -2,7 +2,7 @@
 
 // 정렬 상태
 let sortKey = null;
-let sortOrder = "desc"; // 'asc' or 'desc'
+let sortOrder = "desc";
 
 // 무한 스크롤 관련
 const PAGE_SIZE = 20;
@@ -16,6 +16,48 @@ const headerDefs = [
   { label: "전일대비", key: "change_rate" },
   { label: "거래량", key: "volume" },
 ];
+
+let visibleRowCodes = new Set();
+let observer = null;
+
+function handleRowVisibility(entries) {
+  let changed = false;
+  entries.forEach((entry) => {
+    const code = entry.target.getAttribute("data-code");
+    if (!code) return;
+    if (entry.isIntersecting) {
+      if (!visibleRowCodes.has(code)) {
+        visibleRowCodes.add(code);
+        changed = true;
+      }
+    } else {
+      if (visibleRowCodes.delete(code)) {
+        changed = true;
+      }
+    }
+  });
+  // 구독 대상이 바뀌었을 때만 갱신
+  if (changed) {
+    const codes = Array.from(visibleRowCodes).slice(0, 41);
+    updateRealTimeSubscriptions(codes);
+  }
+}
+
+function setupRowObservers() {
+  // 기존 Observer 해제
+  if (observer) observer.disconnect();
+  visibleRowCodes.clear();
+  observer = new IntersectionObserver(handleRowVisibility, {
+    root:
+      document.querySelector(".table-body .ss-content") ||
+      document.querySelector(".table-body"),
+    threshold: 0.1, // 10% 이상 보이면 보이는 것으로 간주
+  });
+  // 모든 tr에 Observer 등록
+  document.querySelectorAll("#stock-tbody tr").forEach((tr) => {
+    observer.observe(tr);
+  });
+}
 
 // 테이블 렌더링
 export function renderTable(data, append = false) {
@@ -63,6 +105,7 @@ export function renderTable(data, append = false) {
     `;
     tbody.appendChild(tr);
   });
+  setupRowObservers();
 }
 
 //헤더 렌더링
@@ -232,25 +275,6 @@ export function sortStocks(key) {
   updateHeaderArrows();
 }
 
-// 무한 스크롤
-export function loadMore() {
-  const total = filteredStocks.length;
-  const nextPage = currentPage + 1;
-  const start = currentPage * PAGE_SIZE;
-  const end = nextPage * PAGE_SIZE;
-
-  if (start >= total) {
-    console.log("모든 데이터를 로드했습니다.");
-    return;
-  }
-
-  // 새로운 종목들 렌더링
-  const newStocks = filteredStocks.slice(start, end);
-  console.log(`새로 로드할 종목 수: ${newStocks.length}`);
-  renderTable(newStocks, true);
-  currentPage = nextPage;
-}
-
 // 데이터 관리 함수들
 export function setFilteredStocks(stocks) {
   filteredStocks = stocks;
@@ -313,4 +337,12 @@ export function resetScrollPosition() {
   if (ssContent) {
     ssContent.scrollTop = 0;
   }
+}
+
+// 스크롤 이벤트에도 구독 갱신
+const tableBody = document.querySelector(".table-body");
+if (tableBody) {
+  tableBody.addEventListener("scroll", () => {
+    setupRowObservers();
+  });
 }
