@@ -39,8 +39,7 @@
 /* 테이블 본문 (스크롤) */
 .table-body {
   width: 100%;
-  margin: 3px 0 0 0;
-  padding-right: 0px;
+  margin: 0;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
