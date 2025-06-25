@@ -66,4 +66,8 @@ function setupEventListeners() {
 document.addEventListener("DOMContentLoaded", () => {
   initialRender();
   setupEventListeners();
+  const searchInput = document.getElementById("search");
+  if (searchInput) {
+    searchInput.focus();
+  }
 });
