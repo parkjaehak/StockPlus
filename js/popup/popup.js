@@ -86,11 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
           favorites.includes(stock.code)
         );
         renderTable(favoriteStocks);
-        favBtn.textContent = "전체보기";
+        favBtn.classList.add("active");
         showingFavorites = true;
       } else {
         renderTable(allStocks);
-        favBtn.textContent = "즐겨찾기";
+        favBtn.classList.remove("active");
         showingFavorites = false;
       }
     });
