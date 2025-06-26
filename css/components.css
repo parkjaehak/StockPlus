@@ -226,3 +226,31 @@
   stroke: gold;
   stroke-width: 1.5;
 }
+
+.empty-favorites-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  width: 100%;
+  text-align: center;
+}
+.empty-favorites-text {
+  font-size: 15px;
+  color: #787878;
+  margin-bottom: 18px;
+}
+.btn-back-all {
+  background: #4d934d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-back-all:hover {
+  background: #145e14;
+}

@@ -217,7 +217,7 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
 
     // 초기 렌더링 - 첫 페이지만 표시
     const allStocks = getFilteredStocks();
-    renderTable(allStocks);
+    renderTable(allStocks, false, selectedMarket);
     updateHeaderArrows();
     // 검색 결과는 실시간 구독에서 제외
     //stopRealTimeData();
@@ -261,7 +261,7 @@ export async function filterByMarket(marketSelect) {
 
     // 초기 렌더링 - 첫 페이지만 표시
     const allStocks = getFilteredStocks();
-    renderTable(allStocks);
+    renderTable(allStocks, false, market);
     updateHeaderArrows();
   } catch (error) {
     console.error("시가총액 상위 종목 조회 중 오류:", error);
@@ -279,24 +279,24 @@ export function debounceSearch(func, delay) {
   };
 }
 
-// 즐겨찾기 목록 저장
-export function saveFavorites(favorites) {
-  localStorage.setItem("favoriteStocks", JSON.stringify(favorites));
+// 즐겨찾기 목록 저장 (시장별)
+export function saveFavorites(favorites, market) {
+  localStorage.setItem(`favoriteStocks_${market}`, JSON.stringify(favorites));
 }
 
-// 즐겨찾기 목록 불러오기
-export function getFavorites() {
-  const data = localStorage.getItem("favoriteStocks");
+// 즐겨찾기 목록 불러오기 (시장별)
+export function getFavorites(market) {
+  const data = localStorage.getItem(`favoriteStocks_${market}`);
   return data ? JSON.parse(data) : [];
 }
 
-// 즐겨찾기 토글
-export function toggleFavorite(stockCode) {
-  let favorites = getFavorites();
+// 즐겨찾기 토글 (시장별)
+export function toggleFavorite(stockCode, market) {
+  let favorites = getFavorites(market);
   if (favorites.includes(stockCode)) {
     favorites = favorites.filter((code) => code !== stockCode);
   } else {
     favorites.push(stockCode);
   }
-  saveFavorites(favorites);
+  saveFavorites(favorites, market);
 }

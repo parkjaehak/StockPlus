@@ -63,15 +63,16 @@ function setupRowObservers() {
 }
 
 // 테이블 렌더링
-export function renderTable(data, append = false) {
+export function renderTable(data, append = false, market = "KOSPI") {
   const tbody = document.getElementById("stock-tbody");
   if (!append) tbody.innerHTML = "";
 
-  const favorites = getFavorites();
+  const favorites = getFavorites(market);
 
   data.forEach((stock) => {
     const tr = document.createElement("tr");
     tr.setAttribute("data-code", stock.code);
+    tr.setAttribute("data-market", stock.market || market || "KOSPI");
 
     // 실시간 데이터가 있으면 사용, 없으면 기본 데이터 사용
     const displayData = realTimeData.get(stock.code) || stock;
@@ -123,8 +124,13 @@ export function renderTable(data, append = false) {
   tbody.querySelectorAll(".favorite-star").forEach((star) => {
     star.addEventListener("click", (e) => {
       const code = star.getAttribute("data-code");
-      toggleFavorite(code);
-      renderTable(data); // UI 갱신
+      const tr = star.closest("tr");
+      const marketAttr =
+        tr && tr.getAttribute("data-market")
+          ? tr.getAttribute("data-market")
+          : market || "KOSPI";
+      toggleFavorite(code, marketAttr);
+      renderTable(data, false, marketAttr); // market 유지
     });
   });
 
@@ -132,7 +138,7 @@ export function renderTable(data, append = false) {
 }
 
 //헤더 렌더링
-export function renderTableHeader() {
+export function renderTableHeader(currentMarket = "KOSPI") {
   const thead = document.querySelector(".stock-table thead tr");
   thead.innerHTML = "";
   headerDefs.forEach((h, idx) => {
@@ -141,7 +147,7 @@ export function renderTableHeader() {
     if (h.key) {
       th.classList.add("sortable");
       th.dataset.key = h.key;
-      th.addEventListener("click", () => sortStocks(h.key));
+      th.addEventListener("click", () => sortStocks(h.key, currentMarket));
     }
     thead.appendChild(th);
   });
@@ -290,7 +296,7 @@ export function showNotification(message, type = "info") {
 }
 
 // 정렬 함수
-export function sortStocks(key) {
+export function sortStocks(key, market = "KOSPI") {
   if (sortKey === key) {
     sortOrder = sortOrder === "asc" ? "desc" : "asc";
   } else {
@@ -306,7 +312,7 @@ export function sortStocks(key) {
     return 0;
   });
   currentPage = 1;
-  renderTable(filteredStocks);
+  renderTable(filteredStocks, false, market);
   updateHeaderArrows();
 }
 
