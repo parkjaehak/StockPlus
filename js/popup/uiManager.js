@@ -21,6 +21,8 @@ const headerDefs = [
 let visibleRowCodes = new Set();
 let observer = null;
 
+import { getFavorites, toggleFavorite } from "./dataManager.js";
+
 function handleRowVisibility(entries) {
   let changed = false;
   entries.forEach((entry) => {
@@ -65,6 +67,8 @@ export function renderTable(data, append = false) {
   const tbody = document.getElementById("stock-tbody");
   if (!append) tbody.innerHTML = "";
 
+  const favorites = getFavorites();
+
   data.forEach((stock) => {
     const tr = document.createElement("tr");
     tr.setAttribute("data-code", stock.code);
@@ -72,9 +76,17 @@ export function renderTable(data, append = false) {
     // 실시간 데이터가 있으면 사용, 없으면 기본 데이터 사용
     const displayData = realTimeData.get(stock.code) || stock;
 
+    const isFavorite = favorites.includes(stock.code);
+    // SVG 별 아이콘, 모든 스타일은 CSS에서 제어
+    const starIcon = isFavorite
+      ? `<svg class="favorite-star favorite-active" data-code="${stock.code}" width="18" height="18" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9"/></svg>`
+      : `<svg class="favorite-star" data-code="${stock.code}" width="18" height="18" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9"/></svg>`;
     tr.innerHTML = `
       <td>
-        <div class="stock-name">${stock.name}</div>
+        <div style="display: flex; align-items: center;">
+          ${starIcon}
+          <span class="stock-name">${stock.name}</span>
+        </div>
         <div class="stock-code">${stock.code}</div>
       </td>
       <td class="${getChangeClass(displayData.change_rate)}">
@@ -106,6 +118,16 @@ export function renderTable(data, append = false) {
     `;
     tbody.appendChild(tr);
   });
+
+  // 별 클릭 이벤트 등록 (SVG polygon 클릭도 포함)
+  tbody.querySelectorAll(".favorite-star").forEach((star) => {
+    star.addEventListener("click", (e) => {
+      const code = star.getAttribute("data-code");
+      toggleFavorite(code);
+      renderTable(data); // UI 갱신
+    });
+  });
+
   setupRowObservers();
 }
 

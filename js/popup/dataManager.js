@@ -58,7 +58,7 @@ export async function callApi(type, data) {
       return response.data || [];
     } else {
       const errorMessage = response?.error || "API 응답 오류";
-      console.error(`API 응답 실패 (${type}):`, errorMessage);
+      console.error(`API 응답 실패 (${type}):`, errorMessage); //여기서 500 에러를 잡는다.
       showNotification(errorMessage, "error");
       throw new Error(errorMessage);
     }
@@ -277,4 +277,26 @@ export function debounceSearch(func, delay) {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => func.apply(this, args), delay);
   };
+}
+
+// 즐겨찾기 목록 저장
+export function saveFavorites(favorites) {
+  localStorage.setItem("favoriteStocks", JSON.stringify(favorites));
+}
+
+// 즐겨찾기 목록 불러오기
+export function getFavorites() {
+  const data = localStorage.getItem("favoriteStocks");
+  return data ? JSON.parse(data) : [];
+}
+
+// 즐겨찾기 토글
+export function toggleFavorite(stockCode) {
+  let favorites = getFavorites();
+  if (favorites.includes(stockCode)) {
+    favorites = favorites.filter((code) => code !== stockCode);
+  } else {
+    favorites.push(stockCode);
+  }
+  saveFavorites(favorites);
 }

@@ -4,13 +4,12 @@
   "version": "0.0.3",
   "description": "한국투자 Open API 기반 주식 시세 현황판입니다다",
   "icons": {
-    "16": "./stockplus_logo.png",
-    "48": "./stockplus_logo.png",
-    "128": "./stockplus_logo.png"
+    "48": "./stockplus_logo_1.png",
+    "128": "./stockplus_logo_1.png"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "stockplus_logo.png"
+    "default_icon": "stockplus_logo_1.png"
   },
   "commands": {
     "_execute_action": {

@@ -4,12 +4,15 @@ import {
   renderTableHeader,
   setRealTimeData,
   updateStockRow,
+  renderTable,
+  getFilteredStocks,
 } from "./uiManager.js";
 import {
   filterStocks,
   filterByMarket,
   stopRealTimeData,
   debounceSearch,
+  getFavorites,
 } from "./dataManager.js";
 import { stockSymbols } from "./stockSymbols.js";
 
@@ -61,6 +64,9 @@ function setupEventListeners() {
   }
 }
 
+// 즐겨찾기 버튼 토글 기능
+let showingFavorites = false;
+
 // 초기화 실행
 document.addEventListener("DOMContentLoaded", () => {
   initialRender();
@@ -68,5 +74,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search");
   if (searchInput) {
     searchInput.focus();
+  }
+
+  const favBtn = document.getElementById("show-favorites-btn");
+  if (favBtn) {
+    favBtn.addEventListener("click", () => {
+      const allStocks = getFilteredStocks();
+      if (!showingFavorites) {
+        const favorites = getFavorites();
+        const favoriteStocks = allStocks.filter((stock) =>
+          favorites.includes(stock.code)
+        );
+        renderTable(favoriteStocks);
+        favBtn.textContent = "전체보기";
+        showingFavorites = true;
+      } else {
+        renderTable(allStocks);
+        favBtn.textContent = "즐겨찾기";
+        showingFavorites = false;
+      }
+    });
   }
 });
