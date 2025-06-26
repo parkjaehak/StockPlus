@@ -9,6 +9,7 @@ const PAGE_SIZE = 20;
 let currentPage = 1;
 let filteredStocks = [];
 let realTimeData = new Map();
+let prevPriceMap = new Map(); // 종목별 이전 가격 저장
 
 const headerDefs = [
   { label: "종목명", key: null },
@@ -149,8 +150,20 @@ export function updateStockRow(stockCode) {
   priceCell.className = changeClass;
   changeCell.className = changeClass;
 
+  // 가격 변동에 따른 강조 효과: UI에 표시된 가격이 변할 때만
+  const formattedPrice = formatNumber(data.price);
+  if (priceCell.textContent !== formattedPrice) {
+    if (data.change_price > 0) {
+      priceCell.classList.add("price-update-rise");
+      setTimeout(() => priceCell.classList.remove("price-update-rise"), 1000);
+    } else if (data.change_price < 0) {
+      priceCell.classList.add("price-update-fall");
+      setTimeout(() => priceCell.classList.remove("price-update-fall"), 1000);
+    }
+  }
+
   // 가격 업데이트
-  priceCell.textContent = formatNumber(data.price);
+  priceCell.textContent = formattedPrice;
 
   // 전일대비 업데이트
   changeCell.innerHTML = `
