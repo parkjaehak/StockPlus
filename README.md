@@ -1,14 +1,16 @@
 # StockPlus - 한국투자 Open API 기반 주식 시세 현황
 
-
-
 ## 소개
 
 한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다.
 
-<img src="./stockplus__v0.0.5.png" alt="StockPlus" width="300"/>
+<div style="display: flex; gap: 20px; justify-content: center;">
+  <img src="stockplus__v0.0.5.png" alt="StockPlus" width="300"/>
+  <img src="stockplus_logo_1.png" alt="StockPlus" width="300"/>
+</div>
 
 ## 개발 기간
+
 2025년 6월 20일 ~ 진행중
 
 ## 프로젝트 사용 기술
@@ -28,8 +30,6 @@
 - **마켓별 필터링**: KOSPI, KOSDAQ 선택
 - **컬럼별 정렬**: 현재가, 전일대비, 거래대금 기준 정렬
 - **공통 API 키**: 개발자가 제공하는 공통 API 키 사용
-
-
 
 ## 추후 예정 기능
 
