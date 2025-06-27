@@ -1,7 +1,7 @@
 // config.js - 서버 프록시 설정
 
 // 개발/프로덕션 환경에 따른 서버 URL 설정
-const isDevelopment = true;
+const isDevelopment = false;
 
 export const SERVER_CONFIG = {
   // 개발 환경에서는 로컬 서버, 프로덕션에서는 실제 서버 URL 사용
