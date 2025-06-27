@@ -6,6 +6,8 @@ import {
   updateStockRow,
   renderTable,
   getFilteredStocks,
+  updateHeaderArrows,
+  setFavoriteStocks,
 } from "./uiManager.js";
 import {
   filterStocks,
@@ -24,7 +26,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-let showingFavorites = false;
+window.showingFavorites = false;
 let currentMarket = "KOSPI";
 
 // 초기화 함수
@@ -46,18 +48,94 @@ function setupEventListeners() {
     currentMarket = marketSelect.value;
     renderTableHeader(currentMarket);
     filterByMarket(marketSelect);
-    // 즐겨찾기 버튼 상태 초기화
     if (favBtn) {
       favBtn.classList.remove("active");
     }
-    showingFavorites = false;
+    window.showingFavorites = false;
   });
 
   // 검색 이벤트 (디바운싱 적용)
-  const debouncedFilterStocks = debounceSearch(
-    () => filterStocks(searchInput, marketSelect, stockSymbols),
-    500
-  );
+  const debouncedFilterStocks = debounceSearch(async () => {
+    const keyword = searchInput.value.trim().toLowerCase();
+    if (window.showingFavorites) {
+      const favorites = getFavorites(currentMarket);
+      if (!favorites || favorites.length === 0) {
+        // 즐겨찾기 데이터가 없으면 안내문구가 이미 표시된 상태이므로 아무것도 하지 않음
+        return;
+      }
+      const allStocks = getFilteredStocks();
+      // 1. 테이블에 있는 즐겨찾기 종목
+      const favoriteStocksInTable = allStocks.filter((stock) =>
+        favorites.includes(stock.code)
+      );
+      // 2. 테이블에 없는 즐겨찾기 종목 코드
+      const codesInTable = allStocks.map((stock) => stock.code);
+      const codesNotInTable = favorites.filter(
+        (code) => !codesInTable.includes(code)
+      );
+      // 3. 없는 종목은 API로 조회
+      let favoriteStocksNotInTable = [];
+      if (codesNotInTable.length > 0) {
+        const fetched = await import("./dataManager.js").then((m) =>
+          m.fetchStockData(codesNotInTable, currentMarket)
+        );
+        // 심볼 이름 매핑
+        const marketSymbols = stockSymbols[currentMarket] || [];
+        favoriteStocksNotInTable = fetched.map((d) => {
+          const code = d.stck_shrn_iscd || d.code;
+          const symbol = marketSymbols.find((s) => s.code === code);
+          return {
+            code,
+            name: symbol ? symbol.name : "",
+            market: currentMarket,
+            price: parseFloat(d.stck_prpr || d.price) || 0,
+            change_rate: parseFloat(d.prdy_ctrt || d.chgrate) || 0,
+            change_price: parseFloat(d.prdy_vrss || d.change) || 0,
+            volume: parseFloat(d.acml_vol || d.volume) || 0,
+          };
+        });
+      }
+      // 4. 전체 즐겨찾기 종목 합치기
+      const allFavoriteStocks = favoriteStocksInTable.concat(
+        favoriteStocksNotInTable
+      );
+      // 5. 즐겨찾기 배열 순서대로 정렬 (등록한 순서대로 위에서부터 아래로)
+      const sortedFavoriteStocks = favorites
+        .map((favoriteCode) => {
+          const stock = allFavoriteStocks.find((s) => s.code === favoriteCode);
+          return stock;
+        })
+        .filter(Boolean); // undefined 제거
+
+      if (sortedFavoriteStocks.length === 0) {
+        // 즐겨찾기 데이터가 없을 때 안내 문구와 전체보기 버튼 표시
+        const tbody = document.getElementById("stock-tbody");
+        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-favorites-container"><div class="empty-favorites-text">즐겨찾기한 종목이 없습니다.</div><button id="back-to-all-btn" class="btn-back-all">전체보기</button></div></td></tr>`;
+        favBtn.classList.add("active");
+        setFavoriteStocks([]); // 빈 배열로 설정
+        document.getElementById("back-to-all-btn").onclick = () => {
+          if (searchInput) {
+            searchInput.value = "";
+            searchInput.dispatchEvent(new Event("input"));
+          }
+          favBtn.classList.remove("active");
+          window.showingFavorites = false;
+        };
+        return;
+      }
+      setFavoriteStocks(sortedFavoriteStocks); // 즐겨찾기 목록 설정
+      renderTable(sortedFavoriteStocks, false, currentMarket);
+      favBtn.classList.add("active");
+    } else {
+      // 전체보기(홈화면)에서 검색어가 비어있으면 전체 리스트를 다시 불러오도록 수정
+      if (!keyword) {
+        filterStocks(searchInput, marketSelect, stockSymbols);
+        return;
+      }
+      // 기존 전체검색 로직
+      filterStocks(searchInput, marketSelect, stockSymbols);
+    }
+  }, 500);
   searchInput.addEventListener("input", debouncedFilterStocks);
 
   // 페이지 언로드시 실시간 데이터 중지
@@ -82,7 +160,13 @@ function setupEventListeners() {
   if (favBtn) {
     favBtn.addEventListener("click", async () => {
       const allStocks = getFilteredStocks();
-      if (!showingFavorites) {
+      const searchInput = document.getElementById("search");
+      if (!window.showingFavorites) {
+        window.showingFavorites = true;
+        if (searchInput) {
+          searchInput.value = "";
+          searchInput.dispatchEvent(new Event("input"));
+        }
         const favorites = getFavorites(currentMarket);
         // 1. 이미 로드된 데이터(시가총액 상위 100개)에서 즐겨찾기 필터링
         const favoriteStocksInTable = allStocks.filter((stock) =>
@@ -125,27 +209,42 @@ function setupEventListeners() {
         const allFavoriteStocks = favoriteStocksInTable.concat(
           favoriteStocksNotInTable
         );
-        if (allFavoriteStocks.length === 0) {
+        // 5. 즐겨찾기 배열 순서대로 정렬 (등록한 순서대로 위에서부터 아래로)
+        const sortedFavoriteStocks = favorites
+          .map((favoriteCode) => {
+            const stock = allFavoriteStocks.find(
+              (s) => s.code === favoriteCode
+            );
+            return stock;
+          })
+          .filter(Boolean); // undefined 제거
+
+        if (sortedFavoriteStocks.length === 0) {
           // 즐겨찾기 데이터가 없을 때 안내 문구와 전체보기 버튼 표시
           const tbody = document.getElementById("stock-tbody");
           tbody.innerHTML = `<tr><td colspan="4"><div class="empty-favorites-container"><div class="empty-favorites-text">즐겨찾기한 종목이 없습니다.</div><button id="back-to-all-btn" class="btn-back-all">전체보기</button></div></td></tr>`;
           favBtn.classList.add("active");
-          showingFavorites = true;
-          // 전체보기 버튼 이벤트
+          setFavoriteStocks([]); // 빈 배열로 설정
           document.getElementById("back-to-all-btn").onclick = () => {
-            renderTable(allStocks, false, currentMarket);
+            if (searchInput) {
+              searchInput.value = "";
+              searchInput.dispatchEvent(new Event("input"));
+            }
             favBtn.classList.remove("active");
-            showingFavorites = false;
+            window.showingFavorites = false;
           };
           return;
         }
-        renderTable(allFavoriteStocks, false, currentMarket);
+        setFavoriteStocks(sortedFavoriteStocks); // 즐겨찾기 목록 설정
+        renderTable(sortedFavoriteStocks, false, currentMarket);
         favBtn.classList.add("active");
-        showingFavorites = true;
       } else {
-        renderTable(allStocks, false, currentMarket);
+        if (searchInput) {
+          searchInput.value = "";
+          searchInput.dispatchEvent(new Event("input"));
+        }
         favBtn.classList.remove("active");
-        showingFavorites = false;
+        window.showingFavorites = false;
       }
     });
   }

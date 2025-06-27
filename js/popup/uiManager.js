@@ -8,6 +8,7 @@ let sortOrder = "desc";
 const PAGE_SIZE = 20;
 let currentPage = 1;
 let filteredStocks = [];
+let favoriteStocks = []; // 즐겨찾기 목록 별도 관리
 let realTimeData = new Map();
 let prevPriceMap = new Map(); // 종목별 이전 가격 저장
 
@@ -122,7 +123,7 @@ export function renderTable(data, append = false, market = "KOSPI") {
 
   // 별 클릭 이벤트 등록 (SVG polygon 클릭도 포함)
   tbody.querySelectorAll(".favorite-star").forEach((star) => {
-    star.addEventListener("click", (e) => {
+    star.addEventListener("click", async (e) => {
       const code = star.getAttribute("data-code");
       const tr = star.closest("tr");
       const marketAttr =
@@ -130,7 +131,89 @@ export function renderTable(data, append = false, market = "KOSPI") {
           ? tr.getAttribute("data-market")
           : market || "KOSPI";
       toggleFavorite(code, marketAttr);
-      renderTable(data, false, marketAttr); // market 유지
+      // 즐겨찾기 모드라면 즐겨찾기 리스트를 즉시 다시 필터링해서 렌더링
+      if (window.showingFavorites) {
+        const favorites = getFavorites(marketAttr);
+        const allStocks = getFilteredStocks();
+
+        // 1. 테이블에 있는 즐겨찾기 종목 (시세 상위 100개 중)
+        const favoriteStocksInTable = allStocks.filter((stock) =>
+          favorites.includes(stock.code)
+        );
+
+        // 2. 테이블에 없는 즐겨찾기 종목 코드 (검색으로 추가된 종목들)
+        const codesInTable = allStocks.map((stock) => stock.code);
+        const codesNotInTable = favorites.filter(
+          (code) => !codesInTable.includes(code)
+        );
+
+        // 3. 없는 종목은 API로 조회 (검색으로 추가된 종목들)
+        let favoriteStocksNotInTable = [];
+        if (codesNotInTable.length > 0) {
+          // API 호출을 위해 dataManager에서 fetchStockData 가져오기
+          const { fetchStockData } = await import("./dataManager.js");
+          const fetched = await fetchStockData(codesNotInTable, marketAttr);
+
+          // 심볼 이름 매핑을 위해 stockSymbols 가져오기
+          const { stockSymbols } = await import("./stockSymbols.js");
+          const marketSymbols = stockSymbols[marketAttr] || [];
+
+          favoriteStocksNotInTable = fetched.map((d) => {
+            const code = d.stck_shrn_iscd || d.code;
+            const symbol = marketSymbols.find((s) => s.code === code);
+            return {
+              code,
+              name: symbol ? symbol.name : "",
+              market: marketAttr,
+              price: parseFloat(d.stck_prpr || d.price) || 0,
+              change_rate: parseFloat(d.prdy_ctrt || d.chgrate) || 0,
+              change_price: parseFloat(d.prdy_vrss || d.change) || 0,
+              volume: parseFloat(d.acml_vol || d.volume) || 0,
+            };
+          });
+        }
+
+        // 4. 두 결과 합치기
+        const allFavoriteStocks = favoriteStocksInTable.concat(
+          favoriteStocksNotInTable
+        );
+
+        // 5. 즐겨찾기 배열 순서대로 정렬 (등록한 순서대로 위에서부터 아래로)
+        const sortedFavoriteStocks = favorites
+          .map((favoriteCode) => {
+            const stock = allFavoriteStocks.find(
+              (s) => s.code === favoriteCode
+            );
+            return stock;
+          })
+          .filter(Boolean); // undefined 제거
+
+        // 6. 안내문구 처리
+        if (sortedFavoriteStocks.length === 0) {
+          const tbody = document.getElementById("stock-tbody");
+          tbody.innerHTML = `<tr><td colspan="4"><div class="empty-favorites-container"><div class="empty-favorites-text">즐겨찾기한 종목이 없습니다.</div><button id="back-to-all-btn" class="btn-back-all">전체보기</button></div></td></tr>`;
+          setFavoriteStocks([]); // 빈 배열로 설정
+          // 전체보기 버튼 이벤트 바인딩 추가
+          const backBtn = document.getElementById("back-to-all-btn");
+          if (backBtn) {
+            backBtn.onclick = () => {
+              const searchInput = document.getElementById("search");
+              const favBtn = document.getElementById("show-favorites-btn");
+              if (searchInput) {
+                searchInput.value = "";
+                searchInput.dispatchEvent(new Event("input"));
+              }
+              if (favBtn) favBtn.classList.remove("active");
+              window.showingFavorites = false;
+            };
+          }
+        } else {
+          setFavoriteStocks(sortedFavoriteStocks); // 즐겨찾기 목록 설정
+          renderTable(sortedFavoriteStocks, false, marketAttr);
+        }
+      } else {
+        renderTable(data, false, marketAttr); // 기존 동작 유지
+      }
     });
   });
 
@@ -303,7 +386,18 @@ export function sortStocks(key, market = "KOSPI") {
     sortKey = key;
     sortOrder = "desc";
   }
-  filteredStocks.sort((a, b) => {
+
+  // 현재 모드에 따라 다른 데이터를 정렬
+  const stocksToSort = window.showingFavorites
+    ? favoriteStocks
+    : filteredStocks;
+
+  // 즐겨찾기 모드이고 즐겨찾기 목록이 비어있으면 정렬하지 않음
+  if (window.showingFavorites && favoriteStocks.length === 0) {
+    return; // 안내문구 유지
+  }
+
+  stocksToSort.sort((a, b) => {
     const aData = realTimeData.get(a.code) || a;
     const bData = realTimeData.get(b.code) || b;
 
@@ -311,8 +405,16 @@ export function sortStocks(key, market = "KOSPI") {
     if (aData[key] > bData[key]) return sortOrder === "asc" ? 1 : -1;
     return 0;
   });
+
   currentPage = 1;
-  renderTable(filteredStocks, false, market);
+
+  // 현재 모드에 따라 다른 데이터를 렌더링
+  if (window.showingFavorites) {
+    renderTable(favoriteStocks, false, market);
+  } else {
+    renderTable(filteredStocks, false, market);
+  }
+
   updateHeaderArrows();
 }
 
@@ -340,6 +442,14 @@ async function updateRealTimeSubscriptions(stockCodes) {
 
 export function getFilteredStocks() {
   return filteredStocks;
+}
+
+export function setFavoriteStocks(stocks) {
+  favoriteStocks = stocks;
+}
+
+export function getFavoriteStocks() {
+  return favoriteStocks;
 }
 
 export function setRealTimeData(code, data) {
