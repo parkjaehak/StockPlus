@@ -1,8 +1,7 @@
 // messageHandler.js - 메시지 처리
 
 export class MessageHandler {
-  constructor(tokenManager, apiService, realTimeManager) {
-    this.tokenManager = tokenManager;
+  constructor(apiService, realTimeManager) {
     this.apiService = apiService;
     this.realTimeManager = realTimeManager;
   }
@@ -13,6 +12,7 @@ export class MessageHandler {
       START_REAL_TIME: (msg) => this.handleStartRealTime(msg),
       STOP_REAL_TIME: () => this.handleStopRealTime(),
       GET_MULTIPLE_STOCKS: (msg) => this.handleGetMultipleStocks(msg),
+      TEST_CONNECTION: () => this.handleTestConnection(),
     };
 
     const handler = handlers[message.type];
@@ -34,7 +34,7 @@ export class MessageHandler {
   }
 
   async handleStartRealTime(message) {
-    const approvalKey = await this.tokenManager.getApprovalKey();
+    const approvalKey = await this.apiService.getApprovalKey();
 
     if (!approvalKey) {
       throw new Error("실시간 접속키를 가져올 수 없습니다.");
@@ -57,5 +57,9 @@ export class MessageHandler {
   async handleGetMultipleStocks(message) {
     const { stockCodes } = message.data;
     return await this.apiService.fetchMultipleStocks(stockCodes);
+  }
+
+  async handleTestConnection() {
+    return await this.apiService.testConnection();
   }
 }

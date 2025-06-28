@@ -254,3 +254,52 @@
 .btn-back-all:hover {
   background: #145e14;
 }
+
+/* 서버 상태 표시 스타일 */
+.server-status {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-indicator.connected .status-dot {
+  background-color: #4caf50;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+.status-indicator.disconnected .status-dot {
+  background-color: #f44336;
+  box-shadow: 0 0 4px rgba(244, 67, 54, 0.4);
+}
+
+.status-text {
+  font-weight: 500;
+  color: #333;
+}
+
+.status-error {
+  color: #f44336;
+  font-size: 11px;
+  margin-left: auto;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

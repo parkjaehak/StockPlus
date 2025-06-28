@@ -24,6 +24,42 @@ let observer = null;
 
 import { getFavorites, toggleFavorite } from "./dataManager.js";
 
+// 서버 상태 표시 함수
+export function showServerStatus(status) {
+  // 기존 상태 표시 요소 제거
+  const existingStatus = document.querySelector(".server-status");
+  if (existingStatus) {
+    existingStatus.remove();
+  }
+
+  // 상태 표시 요소 생성
+  const statusElement = document.createElement("div");
+  statusElement.className = "server-status";
+
+  if (status.server === "connected") {
+    statusElement.innerHTML = `
+      <div class="status-indicator connected">
+        <span class="status-dot"></span>
+        <span class="status-text">서버 연결됨</span>
+      </div>
+    `;
+    statusElement.style.display = "none"; // 연결되면 숨김
+  } else {
+    statusElement.innerHTML = `
+      <div class="status-indicator disconnected">
+        <span class="status-dot"></span>
+        <span class="status-text">서버 연결 안됨</span>
+        <span class="status-error">${status.error || "알 수 없는 오류"}</span>
+      </div>
+    `;
+    statusElement.style.display = "block";
+  }
+
+  // 팝업 상단에 추가
+  const popup = document.querySelector(".popup-container") || document.body;
+  popup.insertBefore(statusElement, popup.firstChild);
+}
+
 function handleRowVisibility(entries) {
   let changed = false;
   entries.forEach((entry) => {

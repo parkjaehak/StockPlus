@@ -8,6 +8,7 @@ import {
   getFilteredStocks,
   updateHeaderArrows,
   setFavoriteStocks,
+  showServerStatus,
 } from "./uiManager.js";
 import {
   filterStocks,
@@ -29,8 +30,46 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 window.showingFavorites = false;
 let currentMarket = "KOSPI";
 
+// 서버 연결 상태 확인
+async function checkServerConnection() {
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: "TEST_CONNECTION",
+    });
+
+    if (response.success) {
+      const status = response.data;
+      showServerStatus(status);
+
+      if (status.server === "disconnected") {
+        console.error("서버 연결 실패:", status.error);
+        // 서버 연결 실패 시 사용자에게 알림
+        showServerStatus({
+          server: "disconnected",
+          error: "서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.",
+        });
+      }
+    } else {
+      console.error("서버 연결 테스트 실패:", response.error);
+      showServerStatus({
+        server: "disconnected",
+        error: response.error,
+      });
+    }
+  } catch (error) {
+    console.error("서버 연결 확인 중 오류:", error);
+    showServerStatus({
+      server: "disconnected",
+      error: "서버 연결 확인 중 오류가 발생했습니다.",
+    });
+  }
+}
+
 // 초기화 함수
 async function initialRender() {
+  // 서버 연결 상태 확인
+  await checkServerConnection();
+
   renderTableHeader(currentMarket);
   const marketSelect = document.getElementById("market-select");
   currentMarket = marketSelect.value;

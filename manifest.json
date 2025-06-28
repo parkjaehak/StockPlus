@@ -1,15 +1,15 @@
 {
   "manifest_version": 3,
   "name": "StockPlus - 한국투자 Open API 기반 주식 시세 현황",
-  "version": "0.0.3",
-  "description": "한국투자 Open API 기반 주식 시세 현황판입니다다",
+  "version": "0.0.4",
+  "description": "한국투자 Open API 기반 주식 시세 현황판입니다 (서버 프록시 방식)",
   "icons": {
-    "48": "./stockplus_logo_1.png",
-    "128": "./stockplus_logo_1.png"
+    "48": "./stockplus_logo_2.png",
+    "128": "./stockplus_logo_2.png"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "stockplus_logo_1.png"
+    "default_icon": "stockplus_logo_2.png"
   },
   "commands": {
     "_execute_action": {
@@ -26,7 +26,8 @@
   },
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
-    "https://openapi.koreainvestment.com/*",
+    "http://localhost:3000/*",
+    "https://your-production-server.com/*",
     "ws://ops.koreainvestment.com/*",
     "wss://ops.koreainvestment.com/*"
   ],

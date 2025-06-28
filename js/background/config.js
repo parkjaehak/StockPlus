@@ -1,21 +1,27 @@
-// config.js - API 설정 및 엔드포인트
+// config.js - 서버 프록시 설정
 
-import { ENV_CONFIG } from "./env.js";
+// 개발/프로덕션 환경에 따른 서버 URL 설정
+const isDevelopment = true;
 
-// API 설정 (env.js에서 API 키를 가져옴)
-export const API_CONFIG = {
-  APP_KEY: ENV_CONFIG.APP_KEY,
-  APP_SECRET: ENV_CONFIG.APP_SECRET,
-  BASE_URL: "https://openapi.koreainvestment.com:9443",
-  WS_URL: "ws://ops.koreainvestment.com:21000",
-  HTS_USER_ID: ENV_CONFIG.HTS_USER_ID,
+export const SERVER_CONFIG = {
+  // 개발 환경에서는 로컬 서버, 프로덕션에서는 실제 서버 URL 사용
+  BASE_URL: isDevelopment
+    ? "http://localhost:3000"
+    : "https://your-production-server.com", // 실제 배포 시 변경 필요
+
+  // API 엔드포인트
+  ENDPOINTS: {
+    HEALTH: "/health",
+    SEARCH_CONDITIONS: "/api/search-conditions",
+    SEARCH_RESULT: "/api/search-result",
+    STOCK_PRICE: "/api/stock-price",
+    STOCK_PRICES: "/api/stock-prices",
+    APPROVAL_KEY: "/api/approval-key",
+    TOKEN_STATUS: "/api/token-status",
+  },
 };
 
-// API 엔드포인트
-export const API_ENDPOINTS = {
-  TOKEN: "/oauth2/tokenP",
-  APPROVAL_KEY: "/oauth2/Approval",
-  PSEARCH_TITLE: "/uapi/domestic-stock/v1/quotations/psearch-title",
-  PSEARCH_RESULT: "/uapi/domestic-stock/v1/quotations/psearch-result",
-  STOCK_PRICE: "/uapi/domestic-stock/v1/quotations/inquire-price",
+// 실시간 웹소켓 설정 (변경 없음)
+export const WS_CONFIG = {
+  WS_URL: "ws://ops.koreainvestment.com:21000",
 };

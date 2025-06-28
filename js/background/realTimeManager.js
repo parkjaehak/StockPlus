@@ -1,6 +1,6 @@
 // realTimeManager.js - 실시간 데이터 관리
 
-import { API_CONFIG } from "./config.js";
+import { WS_CONFIG } from "./config.js";
 
 export class RealTimeManager {
   constructor() {
@@ -211,7 +211,7 @@ export class RealTimeManager {
       this.ws.close();
     }
     // 승인키를 URL에 포함하여 연결
-    const wsUrl = `${API_CONFIG.WS_URL}?approval_key=${approvalKey}`;
+    const wsUrl = `${WS_CONFIG.WS_URL}?approval_key=${approvalKey}`;
     this.ws = new WebSocket(wsUrl);
     this.setupWebSocketHandlers(approvalKey);
   }
