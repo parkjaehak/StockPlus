@@ -1,240 +1,213 @@
 # StockPlus - 한국투자 Open API 기반 주식 시세 현황
 
-한국투자 Open API를 활용한 Chrome 확장 프로그램으로, 실시간 주식 시세를 확인할 수 있습니다.
+## 소개
 
-## 🚀 주요 기능
+한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다. **서버 프록시 방식**을 사용하여 API 키를 안전하게 관리합니다.
 
-- **실시간 주식 시세**: 코스피/코스닥 상위 종목들의 실시간 시세 제공
-- **서버 프록시 방식**: API 키를 중앙에서 관리하여 여러 사용자가 공유 사용 가능
-- **즐겨찾기 기능**: 관심 종목을 즐겨찾기로 관리
-- **검색 기능**: 종목명으로 실시간 검색
-- **실시간 데이터**: WebSocket을 통한 실시간 가격 업데이트
-- **반응형 UI**: 깔끔하고 직관적인 사용자 인터페이스
+<div style="display: flex; gap: 20px; justify-content: center;">
+  <img src="stockplus__v0.0.5.png" alt="StockPlus" width="300"/>
+  <img src="stockplus_logo_1.png" alt="StockPlus" width="300"/>
+</div>
 
-## 📋 시스템 요구사항
+## 개발 기간
 
-- **Chrome 브라우저** (최신 버전 권장)
-- **Node.js** (서버 실행용, v16 이상 권장)
-- **한국투자 Open API 계정** (API 키 발급 필요)
+2025년 6월 20일 ~ 진행중
 
-## 🛠️ 설치 및 설정
+## 프로젝트 사용 기술
 
-### 1. 서버 설정
+- **JavaScript (ES6+)**: 전체 로직 및 UI 구현
+- **Chrome Extension API**: 백그라운드, 팝업, 메시지 통신 등 확장 프로그램 구조
+- **HTML5/CSS3**: UI 마크업 및 스타일링
+- **WebSocket**: 실시간 데이터 수신 및 처리
+- **한국투자증권 Open API**: 주식 시세 데이터 연동
+- **서버 프록시**: API 키 중앙 관리 및 보안 강화
+- **모듈화 구조**: 관심사 분리 및 유지보수성 강화
 
-#### 1-1. 서버 의존성 설치
+## 주요 기능
 
-```bash
-cd server
-npm install
-```
+- **실시간 주식 시세**: 한국투자증권 Open API 연동
+- **실시간 데이터 업데이트**: WebSocket을 통한 실시간 가격 변동
+- **종목 검색**: 종목명 또는 종목코드로 검색
+- **마켓별 필터링**: KOSPI, KOSDAQ 선택
+- **컬럼별 정렬**: 현재가, 전일대비, 거래대금 기준 정렬
+- **즐겨찾기 기능**: 관심 종목을 즐겨찾기로 등록하여 빠른 접근
+- **서버 연결 상태 표시**: 실시간 서버 연결 상태 확인
+- **API 키 공유**: 서버 프록시를 통한 안전한 API 키 공유
 
-#### 1-2. 환경변수 설정
+## 추후 예정 기능
 
-```bash
-# Windows
-copy env.example .env
+- **나이트모드**: 다크 테마 지원으로 눈의 피로도 감소
+- **시세 알림 기능**: 설정한 가격에 도달했을 때 알림 제공
 
-# Linux/Mac
-cp env.example .env
-```
+## 설치 방법
 
-`.env` 파일을 편집하여 다음 정보를 입력하세요:
+1. 이 저장소를 다운로드 또는 클론합니다.
+2. 크롬 브라우저에서 `chrome://extensions` 접속
+3. 우측 상단 '개발자 모드' 활성화
+4. '압축해제된 확장 프로그램을 로드' 클릭 후 이 폴더 선택
+5. 확장 프로그램 아이콘 클릭 시 팝업이 나타납니다.
 
-```env
-# 한국투자 Open API 설정
-APP_KEY=your_app_key_here
-APP_SECRET=your_app_secret_here
-HTS_USER_ID=your_hts_user_id_here
+## 서버 프록시 방식
 
-# 서버 설정
-PORT=3000
-NODE_ENV=development
+### 특징
 
-# CORS 설정 (Chrome Extension ID)
-ALLOWED_ORIGINS=chrome-extension://your_extension_id_here
+- **API 키 중앙 관리**: 서버에서 한국투자 Open API 키를 안전하게 관리
+- **공유 사용**: 하나의 API 키로 여러 사용자가 안전하게 사용 가능
+- **보안 강화**: 클라이언트에 API 키가 노출되지 않음
+- **토큰 자동 갱신**: 서버에서 토큰을 자동으로 관리
 
-# API Rate Limiting
-RATE_LIMIT_WINDOW_MS=60000
-RATE_LIMIT_MAX_REQUESTS=100
-```
+### 환경 설정
 
-#### 1-3. 서버 실행
+- **개발 환경**: `http://localhost:3000` (로컬 서버)
+- **프로덕션 환경**: 실제 배포된 서버 URL 사용
 
-```bash
-# Windows
-start.bat
-
-# Linux/Mac
-chmod +x start.sh
-./start.sh
-
-# 또는 직접 실행
-npm start
-```
-
-### 2. Chrome 확장 프로그램 설치
-
-#### 2-1. 개발자 모드 활성화
-
-1. Chrome 브라우저에서 `chrome://extensions/` 접속
-2. 우측 상단의 "개발자 모드" 토글 활성화
-
-#### 2-2. 확장 프로그램 로드
-
-1. "압축해제된 확장 프로그램을 로드합니다" 버튼 클릭
-2. 프로젝트 루트 폴더 선택
-
-#### 2-3. 서버 URL 설정
-
-프로덕션 배포 시 `js/background/config.js` 파일에서 서버 URL을 실제 서버 주소로 변경하세요:
-
-```javascript
-BASE_URL: "https://your-production-server.com";
-```
-
-## 🔧 사용 방법
-
-### 기본 사용법
-
-1. Chrome 확장 프로그램 아이콘 클릭
-2. 마켓 선택 (코스피/코스닥)
-3. 실시간 시세 확인
-4. 종목명 클릭으로 즐겨찾기 추가/제거
-
-### 검색 기능
-
-- 검색창에 종목명 입력
-- 실시간 검색 결과 확인
-- 검색된 종목도 즐겨찾기 가능
-
-### 즐겨찾기 관리
-
-- 별 아이콘 클릭으로 즐겨찾기 추가/제거
-- "즐겨찾기" 버튼으로 즐겨찾기 목록만 표시
-
-## 🔒 보안 고려사항
-
-### 서버 보안
-
-- `.env` 파일을 절대 Git에 커밋하지 마세요
-- 프로덕션에서는 HTTPS 사용 필수
-- CORS 설정으로 허용된 확장 프로그램만 접근 가능
-- Rate Limiting으로 API 남용 방지
-
-### API 키 관리
-
-- 한국투자 Open API 키는 서버에서만 관리
-- 클라이언트에는 API 키가 노출되지 않음
-- 토큰 자동 갱신으로 안정적인 서비스 제공
-
-## 🚀 배포 가이드
-
-### 서버 배포
-
-#### Heroku 배포
-
-```bash
-# Heroku CLI 설치 후
-heroku create your-app-name
-heroku config:set APP_KEY=your_app_key
-heroku config:set APP_SECRET=your_app_secret
-heroku config:set HTS_USER_ID=your_hts_user_id
-git push heroku main
-```
-
-#### Vercel 배포
-
-```bash
-# Vercel CLI 설치 후
-vercel
-# 환경변수는 Vercel 대시보드에서 설정
-```
-
-### Chrome 웹스토어 배포
-
-1. 확장 프로그램 패키징
-2. Chrome 웹스토어 개발자 계정 생성
-3. 확장 프로그램 업로드
-4. 심사 대기 및 승인
-
-## 📊 API 엔드포인트
-
-### 서버 API
-
-- `GET /health` - 서버 상태 확인
-- `GET /api/search-conditions` - 조건검색식 목록
-- `GET /api/search-result?seq={seq}` - 조건검색 결과
-- `GET /api/stock-price?stockCode={code}` - 단일 종목 시세
-- `POST /api/stock-prices` - 다중 종목 시세
-- `GET /api/approval-key` - 실시간 접속키
-- `GET /api/token-status` - 토큰 상태
-
-## 🔧 개발 가이드
-
-### 프로젝트 구조
+## 프로젝트 구조
 
 ```
 stock-view-chrome/
-├── server/                 # 백엔드 서버
-│   ├── services/          # API 서비스
-│   ├── middleware/        # 미들웨어
-│   └── server.js          # 메인 서버
+├── manifest.json                # 크롬 확장 프로그램 설정 파일
+├── popup.html                  # 팝업 UI의 HTML
+├── css/
+│   ├── layout.css              # 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
+│   ├── table.css               # 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
+│   ├── components.css          # 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시, 서버 상태 등
+│   └── common.css              # 볼드, 숨김, 중앙정렬 등 공통 유틸리티
 ├── js/
-│   ├── background/        # 백그라운드 스크립트
-│   └── popup/            # 팝업 UI
-├── css/                   # 스타일시트
-└── manifest.json          # 확장 프로그램 설정
+│   ├── background/
+│   │   ├── background.js       # 백그라운드 서비스 워커(메인 진입점)
+│   │   ├── config.js           # 서버 프록시 설정 및 환경 설정
+│   │   ├── apiService.js       # 서버 프록시 API 호출 및 응답 처리
+│   │   ├── realTimeManager.js  # WebSocket 실시간 데이터 관리
+│   │   └── messageHandler.js   # 백그라운드 메시지 라우팅 및 분기
+│   └── popup/
+│       ├── popup.js            # 팝업 메인 로직, 이벤트 바인딩, 서버 연결 상태 확인
+│       ├── uiManager.js        # UI 렌더링, 테이블/정렬, 서버 상태 표시 등 화면 표시 담당
+│       ├── dataManager.js      # API 데이터 변환, 검색/필터, UI에 데이터 전달
+│       ├── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
+│       └── simple-scrollbar.js # 커스텀 스크롤바 라이브러리
+├── stockplus_logo.png          # 확장 프로그램 아이콘
+└── README.md                   # 프로젝트 설명 파일
 ```
 
-### 개발 모드 실행
+## 주요 파일 역할
 
-```bash
-# 서버 (개발 모드)
-cd server
-npm run dev
+### 📁 Background Scripts (js/background/)
 
-# 확장 프로그램
-# Chrome에서 개발자 모드로 로드
+- **background.js**: 크롬 확장 백그라운드 스크립트, 메인 진입점
+- **config.js**: 서버 프록시 설정, 환경별 서버 URL 관리
+- **apiService.js**: 서버 프록시를 통한 API 호출, 조건검색, 종목 데이터 관리
+- **realTimeManager.js**: WebSocket 실시간 데이터 연결/구독/해제
+- **messageHandler.js**: 백그라운드 메시지 분기 및 서비스 호출
+
+### 📁 Popup Scripts (js/popup/)
+
+- **popup.js**: 팝업 UI의 메인 진입점, 이벤트 바인딩, 서버 연결 상태 확인
+- **uiManager.js**: UI 렌더링, 테이블/정렬, 서버 상태 표시 등 화면 표시 담당
+- **dataManager.js**: API 데이터 변환, 검색/필터, UI에 데이터 전달
+- **stockSymbols.js**: KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
+- **simple-scrollbar.js**: 커스텀 스크롤바 라이브러리
+
+### 📁 Styles (css/)
+
+- **layout.css**: 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
+- **table.css**: 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
+- **components.css**: 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시, 서버 상태 등
+- **common.css**: 볼드, 숨김, 중앙정렬 등 공통 유틸리티
+
+## stockSymbols.js 관리법
+
+- 조건검색 결과(종목명/코드 리스트)를 콘솔에서 복사해 붙여넣기
+- 자동 변환 코드 예시:
+  ```js
+  // 콘솔에서 [{name: "삼성전자", code: "005930"}, ...] 형태로 붙여넣기
+  export const stockSymbols = {
+    KOSPI: [...],
+    KOSDAQ: [...]
+  };
+  ```
+
+## API 연동 구조
+
+### 1. 서버 프록시 API (현재가 조회)
+
+- **엔드포인트**: 서버의 `/api/stock-prices`, `/api/search-conditions` 등
+- **인증**: 서버에서 한국투자 API 토큰 관리
+- **용도**: 초기 데이터 로드, 주기적 업데이트
+
+### 2. WebSocket (실시간 데이터)
+
+- **엔드포인트**: `ws://ops.koreainvestment.com:21000`
+- **용도**: 실시간 가격 변동 수신
+- **구독**: 관심 종목 실시간 구독
+
+### 3. 데이터 흐름
+
+```
+팝업 → background.js → messageHandler.js → apiService.js → 서버 프록시 → 한국투자 API
 ```
 
-## 🤝 기여
+## 개발 가이드
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+### 새로운 기능 추가
+
+1. 필요한 모듈에 기능 추가
+2. `messageHandler.js`에 메시지 핸들러 추가
+3. `popup.js`에 UI 로직 추가
+4. 해당 CSS 파일에 스타일 추가
+
+### 모듈 구조의 장점
+
+- **관심사 분리**: 각 모듈이 하나의 책임만 담당
+- **유지보수성**: 특정 기능 수정 시 해당 모듈만 수정
+- **테스트 용이성**: 각 모듈을 독립적으로 테스트 가능
+- **재사용성**: 모듈을 다른 프로젝트에서도 사용 가능
+- **보안성**: API 키가 클라이언트에 노출되지 않음
+
+### 에러 처리
+
+- 서버 연결 실패시 사용자에게 알림
+- 네트워크 오류시 서버 상태 표시
+- 실시간 연결 끊김시 자동 재연결 시도
+
+## 보안 주의사항
+
+1. **API 키 보안**:
+
+   - API 키는 서버에서만 관리
+   - 클라이언트에는 API 키가 노출되지 않음
+   - 서버 프록시를 통한 안전한 API 호출
+
+2. **서버 연결**: 서버가 실행 중인지 확인 필요
+3. **API 호출 제한**: 한국투자증권 API는 호출 횟수 제한이 있습니다.
+4. **실시간 데이터**: 실시간 데이터는 거래시간에만 제공됩니다.
+5. **개발자 모드**: 개발 중에는 크롬 개발자 모드가 필요합니다.
+
+## 환경 설정
+
+### 개발 환경
+
+- `config.js`에서 `isDevelopment = true` 설정
+- 로컬 서버(`http://localhost:3000`) 사용
+
+### 프로덕션 환경
+
+- `config.js`에서 `isDevelopment = false` 설정
+- 실제 배포된 서버 URL 사용
+
+## 참고 자료
+
+- [한국투자증권 Open API 가이드](https://apiportal.koreainvestment.com/apiservice-summary)
+- [Chrome Extension 개발 가이드](https://developer.chrome.com/docs/extensions/)
+- [WebSocket API 문서](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+
+## 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+
+## 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## 📝 라이선스
-
-MIT License
-
-## 📞 지원
-
-문제가 발생하거나 질문이 있으시면 이슈를 생성해주세요.
-
-## 🔄 업데이트 로그
-
-### v0.0.4 (현재)
-
-- 서버 프록시 방식으로 변경
-- API 키 중앙 관리
-- 서버 연결 상태 표시
-- 보안 강화
-
-### v0.0.3
-
-- 실시간 데이터 기능 추가
-- 즐겨찾기 기능 개선
-- UI/UX 개선
-
-### v0.0.2
-
-- 검색 기능 추가
-- 마켓별 필터링
-- 성능 최적화
-
-### v0.0.1
-
-- 초기 버전
-- 기본 주식 시세 조회 기능
