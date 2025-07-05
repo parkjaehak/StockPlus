@@ -7,7 +7,7 @@ export const SERVER_CONFIG = {
   // 개발 환경에서는 로컬 서버, 프로덕션에서는 실제 서버 URL 사용
   BASE_URL: isDevelopment
     ? "http://localhost:3000"
-    : "https://your-production-server.com", // 실제 배포 시 변경 필요
+    : "https://stockplus-server.onrender.com", // 실제 배포 시 변경 필요
 
   // API 엔드포인트
   ENDPOINTS: {

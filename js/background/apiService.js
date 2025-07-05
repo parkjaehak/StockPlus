@@ -1,7 +1,11 @@
 // apiService.js - 서버 프록시 API 호출 서비스
 
 import { SERVER_CONFIG } from "./config.js";
-import { ERROR_MESSAGES, API_CONSTANTS } from "../constants.js";
+import {
+  ERROR_MESSAGES,
+  API_CONSTANTS,
+  MARKET_CONSTANTS,
+} from "../constants.js";
 
 /**
  * 서버 프록시 API 호출 서비스
