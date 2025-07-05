@@ -46,9 +46,15 @@
             <thead>
               <tr>
                 <th>종목명</th>
-                <th>현재가</th>
-                <th>전일대비</th>
-                <th>거래대금</th>
+                <th class="sortable" data-key="price">
+                  현재가<i class="fas fa-sort sort-icon"></i>
+                </th>
+                <th class="sortable" data-key="change_rate">
+                  전일대비<i class="fas fa-sort sort-icon"></i>
+                </th>
+                <th class="sortable" data-key="volume">
+                  거래량<i class="fas fa-sort sort-icon"></i>
+                </th>
               </tr>
             </thead>
           </table>
