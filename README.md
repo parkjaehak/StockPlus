@@ -5,7 +5,7 @@
 한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다. **서버 프록시 방식**을 사용하여 API 키를 안전하게 관리합니다.
 
 <div style="display: flex; gap: 20px; justify-content: center;">
-  <img src="stockplus__v0.1.0.png" alt="StockPlus" width="300"/>
+  <img src="stockplus_v0.1.0.png" alt="StockPlus" width="300"/>
   <img src="stockplus_logo_2.png" alt="StockPlus" width="300"/>
 </div>
 
