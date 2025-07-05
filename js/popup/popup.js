@@ -6,7 +6,6 @@ import {
   updateStockRow,
   renderTable,
   getFilteredStocks,
-  updateHeaderArrows,
   setFavoriteStocks,
   showServerStatus,
 } from "./uiManager.js";
@@ -14,7 +13,6 @@ import {
   filterStocks,
   filterByMarket,
   stopRealTimeData,
-  debounceSearch,
   getFavorites,
 } from "./dataManager.js";
 import { stockSymbols } from "./stockSymbols.js";
@@ -23,6 +21,7 @@ import {
   ERROR_MESSAGES,
   API_CONSTANTS,
 } from "../constants.js";
+import { debounce } from "../utils.js";
 
 // 실시간 데이터 업데이트 리스너 (가장 먼저 설정)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -440,7 +439,7 @@ function setupEventListeners() {
   marketSelect.addEventListener("change", handleMarketChange);
 
   // 검색 이벤트 (디바운싱 적용)
-  const debouncedFilterStocks = debounceSearch(
+  const debouncedFilterStocks = debounce(
     handleSearch,
     API_CONSTANTS.DEBOUNCE_DELAY
   );

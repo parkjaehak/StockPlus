@@ -5,24 +5,17 @@ import {
   updateHeaderArrows,
   setFilteredStocks,
   getFilteredStocks,
-  getPageSize,
 } from "./uiManager.js";
 import {
   showLoading,
   showNotification,
   resetScrollPosition,
-  debounce,
   transformStockData,
   isEmptyString,
   isEmptyArray,
   cachedApiCall,
 } from "../utils.js";
-import {
-  API_CONSTANTS,
-  ERROR_MESSAGES,
-  MARKET_CONSTANTS,
-  SEARCH_CONDITIONS,
-} from "../constants.js";
+import { API_CONSTANTS, ERROR_MESSAGES } from "../constants.js";
 
 /**
  * 검색 종목 조회 (캐싱 적용)
@@ -99,74 +92,6 @@ export async function callApi(type, data) {
       showNotification(ERROR_MESSAGES.DATA_FETCH_ERROR, "error");
     }
     return [];
-  }
-}
-
-/**
- * @deprecated 실시간 데이터 시작 (추후 삭제 예정)
- * @param {Array} stockCodes - 구독할 종목 코드 배열
- */
-export async function startRealTimeData(stockCodes) {
-  let retryCount = 0;
-
-  const attemptConnection = async () => {
-    try {
-      const response = await callApi("START_REAL_TIME", stockCodes);
-
-      if (response?.success) {
-        return true;
-      } else {
-        console.error(
-          "실시간 데이터 시작 실패:",
-          response?.error || ERROR_MESSAGES.UNKNOWN_ERROR
-        );
-
-        if (response?.details) {
-          console.error("오류 상세 정보:", response.details);
-        }
-
-        showNotification(
-          response?.error || ERROR_MESSAGES.REALTIME_CONNECTION_FAILED,
-          "error"
-        );
-        return false;
-      }
-    } catch (error) {
-      console.error(`실시간 데이터 연결 시도 ${retryCount + 1} 실패:`, error);
-
-      if (error.message.includes("Receiving end does not exist")) {
-        console.log("Background script가 아직 로드되지 않았습니다.");
-        showNotification(ERROR_MESSAGES.EXTENSION_NOT_READY, "warning");
-        return false;
-      }
-      throw error;
-    }
-  };
-
-  while (retryCount < API_CONSTANTS.MAX_RETRIES) {
-    try {
-      const success = await attemptConnection();
-      if (success) {
-        return;
-      }
-
-      retryCount++;
-      if (retryCount < API_CONSTANTS.MAX_RETRIES) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, retryCount * API_CONSTANTS.RETRY_DELAY)
-        );
-      }
-    } catch (error) {
-      retryCount++;
-      if (retryCount >= API_CONSTANTS.MAX_RETRIES) {
-        console.error("실시간 데이터 연결 최종 실패:", error);
-        showNotification(ERROR_MESSAGES.API_KEY_ERROR, "error");
-        break;
-      }
-      await new Promise((resolve) =>
-        setTimeout(resolve, retryCount * API_CONSTANTS.RETRY_DELAY)
-      );
-    }
   }
 }
 
@@ -276,17 +201,6 @@ export async function filterByMarket(marketSelect) {
   } finally {
     showLoading(false);
   }
-}
-
-/**
- * 디바운싱 함수 (기존 호환성을 위해 유지)
- * @param {Function} func - 실행할 함수
- * @param {number} delay - 지연 시간 (ms)
- * @returns {Function} 디바운싱된 함수
- * @deprecated utils.js의 debounce 함수를 사용하세요
- */
-export function debounceSearch(func, delay) {
-  return debounce(func, delay);
 }
 
 /**

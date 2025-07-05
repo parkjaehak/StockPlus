@@ -673,14 +673,6 @@ export function setCurrentPage(page) {
   currentPage = page;
 }
 
-/**
- * 페이지 크기 반환
- * @returns {number} 페이지 크기
- */
-export function getPageSize() {
-  return UI_CONSTANTS.PAGE_SIZE;
-}
-
 // 스크롤 이벤트에도 구독 갱신
 const tableBody = document.querySelector(".table-body");
 if (tableBody) {
@@ -688,14 +680,3 @@ if (tableBody) {
     setupRowObservers();
   });
 }
-
-// utils.js의 함수들을 re-export
-export {
-  showLoading,
-  showNotification,
-  formatNumber,
-  getChangeClass,
-  formatVolume,
-  resetScrollPosition,
-  isEmptyArray,
-};
