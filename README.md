@@ -5,8 +5,8 @@
 한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 무한 스크롤 등의 기능을 제공합니다. **서버 프록시 방식**을 사용하여 API 키를 안전하게 관리합니다.
 
 <div style="display: flex; gap: 20px; justify-content: center;">
-  <img src="stockplus__v0.0.5.png" alt="StockPlus" width="300"/>
-  <img src="stockplus_logo_1.png" alt="StockPlus" width="300"/>
+  <img src="stockplus__v0.1.0.png" alt="StockPlus" width="300"/>
+  <img src="stockplus_logo_2.png" alt="StockPlus" width="300"/>
 </div>
 
 ## 개발 기간
@@ -67,12 +67,15 @@
 stock-view-chrome/
 ├── manifest.json                # 크롬 확장 프로그램 설정 파일
 ├── popup.html                  # 팝업 UI의 HTML
+├── jsconfig.json               # JavaScript 모듈 설정
 ├── css/
 │   ├── layout.css              # 팝업 전체 레이아웃, 컨테이너, 헤더, 스크롤바 등
 │   ├── table.css               # 테이블, 정렬, 종목명/코드, 등락/가격/거래량 등
 │   ├── components.css          # 버튼, 알림, 로딩, 에러/성공 메시지, 실시간 표시, 서버 상태 등
 │   └── common.css              # 볼드, 숨김, 중앙정렬 등 공통 유틸리티
 ├── js/
+│   ├── constants.js            # 전역 상수 정의 (API, UI, 마켓, 에러 메시지 등)
+│   ├── utils.js                # 유틸리티 함수 (포맷팅, 검증, 캐시 등)
 │   ├── background/
 │   │   ├── background.js       # 백그라운드 서비스 워커(메인 진입점)
 │   │   ├── config.js           # 서버 프록시 설정 및 환경 설정
@@ -85,11 +88,18 @@ stock-view-chrome/
 │       ├── dataManager.js      # API 데이터 변환, 검색/필터, UI에 데이터 전달
 │       ├── stockSymbols.js     # KOSPI/KOSDAQ 종목명·코드 리스트(검색 자동완성, 조건검색 결과 붙여넣기)
 │       └── simple-scrollbar.js # 커스텀 스크롤바 라이브러리
-├── stockplus_logo.png          # 확장 프로그램 아이콘
+├── stockplus_logo_1.png        # 확장 프로그램 아이콘 (메인)
+├── stockplus_logo_2.png        # 확장 프로그램 아이콘 (보조)
+├── stockplus__v0.0.5.png       # 확장 프로그램 스크린샷
 └── README.md                   # 프로젝트 설명 파일
 ```
 
 ## 주요 파일 역할
+
+### 📁 Core Scripts (js/)
+
+- **constants.js**: 전역 상수 정의 (API 설정, UI 상수, 마켓 코드, 에러 메시지, CSS 클래스 등)
+- **utils.js**: 유틸리티 함수 (숫자 포맷팅, 검증 함수, 캐시 관리, 디바운싱 등)
 
 ### 📁 Background Scripts (js/background/)
 
@@ -151,9 +161,11 @@ stock-view-chrome/
 ### 새로운 기능 추가
 
 1. 필요한 모듈에 기능 추가
-2. `messageHandler.js`에 메시지 핸들러 추가
-3. `popup.js`에 UI 로직 추가
-4. 해당 CSS 파일에 스타일 추가
+2. `constants.js`에 관련 상수 추가 (필요시)
+3. `utils.js`에 유틸리티 함수 추가 (필요시)
+4. `messageHandler.js`에 메시지 핸들러 추가
+5. `popup.js`에 UI 로직 추가
+6. 해당 CSS 파일에 스타일 추가
 
 ### 모듈 구조의 장점
 
@@ -162,6 +174,8 @@ stock-view-chrome/
 - **테스트 용이성**: 각 모듈을 독립적으로 테스트 가능
 - **재사용성**: 모듈을 다른 프로젝트에서도 사용 가능
 - **보안성**: API 키가 클라이언트에 노출되지 않음
+- **상수 관리**: 전역 상수를 중앙에서 관리하여 일관성 유지
+- **유틸리티 공유**: 공통 함수들을 utils.js에서 관리하여 중복 코드 제거
 
 ### 에러 처리
 
