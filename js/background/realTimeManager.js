@@ -1,16 +1,31 @@
 // realTimeManager.js - 실시간 데이터 관리
 
 import { WS_CONFIG } from "./config.js";
+import { ERROR_MESSAGES, API_CONSTANTS } from "../constants.js";
 
+/**
+ * 실시간 데이터 관리 클래스
+ * WebSocket 연결, 실시간 데이터 구독/해제, 재연결 등을 담당
+ */
 export class RealTimeManager {
+  /**
+   * RealTimeManager 생성자
+   */
   constructor() {
     this.ws = null;
     this.subscribedStocks = new Set();
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
-    this.reconnectDelay = 5000;
+    this.maxReconnectAttempts = API_CONSTANTS.MAX_RECONNECT_ATTEMPTS;
+    this.reconnectDelay = API_CONSTANTS.RECONNECT_DELAY;
   }
 
+  /**
+   * WebSocket 연결 및 종목 구독
+   * @param {string} approvalKey - 승인키
+   * @param {Array<string>} stockCodes - 구독할 종목 코드 배열
+   * @returns {Promise<void>} 연결 완료 시 resolve
+   * @throws {Error} 연결 실패 시
+   */
   async connectAndSubscribe(approvalKey, stockCodes) {
     return new Promise((resolve, reject) => {
       this.connect(approvalKey);
@@ -20,17 +35,20 @@ export class RealTimeManager {
         console.log("웹소켓 연결 성공");
         this.reconnectAttempts = 0;
         this.updateSubscriptions(stockCodes || [], approvalKey);
-
         resolve();
       };
 
       this.ws.onerror = (error) => {
         console.error("WebSocket 연결 오류:", error);
-        reject(error);
+        reject(new Error(ERROR_MESSAGES.WEBSOCKET_CONNECTION_FAILED));
       };
     });
   }
 
+  /**
+   * WebSocket 이벤트 핸들러 설정
+   * @param {string} approvalKey - 승인키
+   */
   setupWebSocketHandlers(approvalKey) {
     this.ws.onopen = () => {
       this.reconnectAttempts = 0;
@@ -50,13 +68,19 @@ export class RealTimeManager {
 
     this.ws.onerror = (error) => {
       console.error("WebSocket 오류:", error);
-      // 승인키 문제일 수 있음
-      if (error.message && error.message.includes("200")) {
-        console.error(
-          "승인키가 유효하지 않거나 실시간 데이터 접근 권한이 없습니다."
-        );
-      }
+      this._handleWebSocketError(error);
     };
+  }
+
+  /**
+   * WebSocket 오류 처리
+   * @param {Error} error - WebSocket 오류
+   */
+  _handleWebSocketError(error) {
+    // 승인키 문제일 수 있음
+    if (error.message && error.message.includes("200")) {
+      console.error(ERROR_MESSAGES.INVALID_APPROVAL_KEY);
+    }
   }
 
   handleWebSocketMessage(event) {

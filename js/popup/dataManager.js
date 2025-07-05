@@ -3,62 +3,89 @@
 import {
   renderTable,
   updateHeaderArrows,
-  showLoading,
-  showNotification,
   setFilteredStocks,
   getFilteredStocks,
   getPageSize,
-  resetScrollPosition,
 } from "./uiManager.js";
+import {
+  showLoading,
+  showNotification,
+  resetScrollPosition,
+  debounce,
+  transformStockData,
+  isEmptyString,
+  isEmptyArray,
+  cachedApiCall,
+} from "../utils.js";
+import {
+  API_CONSTANTS,
+  ERROR_MESSAGES,
+  MARKET_CONSTANTS,
+  SEARCH_CONDITIONS,
+} from "../constants.js";
 
-// 검색 종목 조회
+/**
+ * 검색 종목 조회 (캐싱 적용)
+ * @param {Array} stockCodes - 종목 코드 배열
+ * @param {string} marketCode - 마켓 코드
+ * @returns {Promise<Array>} 종목 데이터 배열
+ */
 export async function fetchStockData(stockCodes, marketCode) {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: "GET_MULTIPLE_STOCKS",
-      data: {
-        stockCodes: stockCodes,
-        marketCode: marketCode,
-      },
-    });
+  return cachedApiCall(
+    "GET_MULTIPLE_STOCKS",
+    { stockCodes, marketCode },
+    async () => {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          type: "GET_MULTIPLE_STOCKS",
+          data: {
+            stockCodes,
+            marketCode,
+          },
+        });
 
-    if (response && response.success) {
-      return response.data || [];
-    } else {
-      const errorMessage = response?.error || "API 응답 오류";
-      console.error("API 응답 실패:", errorMessage);
-      showNotification(errorMessage, "error");
-      throw new Error(errorMessage);
-    }
-  } catch (error) {
-    console.error("API 데이터 조회 실패:", error);
+        if (response?.success) {
+          return response.data || [];
+        } else {
+          const errorMessage =
+            response?.error || ERROR_MESSAGES.DATA_FETCH_ERROR;
+          console.error("API 응답 실패:", errorMessage);
+          showNotification(errorMessage, "error");
+          throw new Error(errorMessage);
+        }
+      } catch (error) {
+        console.error("API 데이터 조회 실패:", error);
 
-    // Background script 연결 오류인 경우
-    if (error.message.includes("Receiving end does not exist")) {
-      showNotification(
-        "확장 프로그램이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
-        "warning"
-      );
-    } else {
-      showNotification("데이터를 가져오는 중 오류가 발생했습니다.", "error");
+        // Background script 연결 오류인 경우
+        if (error.message.includes("Receiving end does not exist")) {
+          showNotification(ERROR_MESSAGES.EXTENSION_NOT_READY, "warning");
+        } else {
+          showNotification(ERROR_MESSAGES.DATA_FETCH_ERROR, "error");
+        }
+        return [];
+      }
     }
-    return [];
-  }
+  );
 }
 
-// 공통 API 호출 함수
+/**
+ * 공통 API 호출 함수
+ * @param {string} type - API 타입
+ * @param {Object} data - 요청 데이터
+ * @returns {Promise<Array>} API 응답 데이터
+ */
 export async function callApi(type, data) {
   try {
     const response = await chrome.runtime.sendMessage({
-      type: type,
-      data: data,
+      type,
+      data,
     });
 
-    if (response && response.success) {
+    if (response?.success) {
       return response.data || [];
     } else {
-      const errorMessage = response?.error || "API 응답 오류";
-      console.error(`API 응답 실패 (${type}):`, errorMessage); //여기서 500 에러를 잡는다.
+      const errorMessage = response?.error || ERROR_MESSAGES.DATA_FETCH_ERROR;
+      console.error(`API 응답 실패 (${type}):`, errorMessage);
       showNotification(errorMessage, "error");
       throw new Error(errorMessage);
     }
@@ -67,45 +94,41 @@ export async function callApi(type, data) {
 
     // Background script 연결 오류인 경우
     if (error.message.includes("Receiving end does not exist")) {
-      showNotification(
-        "확장 프로그램이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
-        "warning"
-      );
+      showNotification(ERROR_MESSAGES.EXTENSION_NOT_READY, "warning");
     } else {
-      showNotification("데이터를 가져오는 중 오류가 발생했습니다.", "error");
+      showNotification(ERROR_MESSAGES.DATA_FETCH_ERROR, "error");
     }
     return [];
   }
 }
 
-//@Deprecated 실시간 데이터 시작 (추후 삭제)
+/**
+ * @deprecated 실시간 데이터 시작 (추후 삭제 예정)
+ * @param {Array} stockCodes - 구독할 종목 코드 배열
+ */
 export async function startRealTimeData(stockCodes) {
-  const maxRetries = 3;
   let retryCount = 0;
 
   const attemptConnection = async () => {
     try {
-      // callApi 함수 사용
       const response = await callApi("START_REAL_TIME", stockCodes);
 
-      if (response && response.success) {
+      if (response?.success) {
         return true;
       } else {
         console.error(
           "실시간 데이터 시작 실패:",
-          response?.error || "알 수 없는 오류"
+          response?.error || ERROR_MESSAGES.UNKNOWN_ERROR
         );
 
-        // 자세한 오류 정보 로깅
         if (response?.details) {
           console.error("오류 상세 정보:", response.details);
         }
 
-        // 사용자에게 오류 알림
-        const errorMessage =
-          response?.error || "실시간 데이터 연결에 실패했습니다.";
-        showNotification(errorMessage, "error");
-
+        showNotification(
+          response?.error || ERROR_MESSAGES.REALTIME_CONNECTION_FAILED,
+          "error"
+        );
         return false;
       }
     } catch (error) {
@@ -113,39 +136,36 @@ export async function startRealTimeData(stockCodes) {
 
       if (error.message.includes("Receiving end does not exist")) {
         console.log("Background script가 아직 로드되지 않았습니다.");
-        showNotification(
-          "확장 프로그램이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
-          "warning"
-        );
+        showNotification(ERROR_MESSAGES.EXTENSION_NOT_READY, "warning");
         return false;
       }
       throw error;
     }
   };
 
-  while (retryCount < maxRetries) {
+  while (retryCount < API_CONSTANTS.MAX_RETRIES) {
     try {
       const success = await attemptConnection();
       if (success) {
-        return; // 성공 시 즉시 반환
+        return;
       }
 
       retryCount++;
-      if (retryCount < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, retryCount * 2000));
+      if (retryCount < API_CONSTANTS.MAX_RETRIES) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, retryCount * API_CONSTANTS.RETRY_DELAY)
+        );
       }
     } catch (error) {
       retryCount++;
-      if (retryCount >= maxRetries) {
+      if (retryCount >= API_CONSTANTS.MAX_RETRIES) {
         console.error("실시간 데이터 연결 최종 실패:", error);
-        // 사용자에게 알림
-        showNotification(
-          "실시간 데이터 연결에 실패했습니다. API 키를 확인해주세요.",
-          "error"
-        );
+        showNotification(ERROR_MESSAGES.API_KEY_ERROR, "error");
         break;
       }
-      await new Promise((resolve) => setTimeout(resolve, retryCount * 2000));
+      await new Promise((resolve) =>
+        setTimeout(resolve, retryCount * API_CONSTANTS.RETRY_DELAY)
+      );
     }
   }
 }
@@ -157,23 +177,25 @@ export function stopRealTimeData() {
   });
 }
 
-// 종목 검색 (키워드 기반)
+/**
+ * 종목 검색 (키워드 기반)
+ * @param {HTMLInputElement} searchInput - 검색 입력 요소
+ * @param {HTMLSelectElement} marketSelect - 마켓 선택 요소
+ * @param {Object} stockSymbols - 종목 심볼 데이터
+ */
 export async function filterStocks(searchInput, marketSelect, stockSymbols) {
   const keyword = searchInput.value.trim().toLowerCase();
 
   // 검색어가 없으면, 시가총액 순위로 다시 조회
-  if (!keyword) {
+  if (isEmptyString(keyword)) {
     await filterByMarket(marketSelect);
     return;
   }
 
   showLoading(true);
-
-  // 검색 시 스크롤 위치 초기화
   resetScrollPosition();
 
   try {
-    // 선택된 마켓에 따라 해당 마켓의 종목만 검색
     const selectedMarket = marketSelect.value;
     const marketSymbols = stockSymbols[selectedMarket] || [];
 
@@ -184,28 +206,16 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
       return nameMatch || codeMatch;
     });
 
-    if (matchedStocks.length > 0) {
+    if (!isEmptyArray(matchedStocks)) {
       const stockCodes = matchedStocks.map((s) => s.code);
       const marketCode = marketSelect.value;
 
-      // fetchStockData 함수 사용
       const responseData = await fetchStockData(stockCodes, marketCode);
 
       if (Array.isArray(responseData) && responseData.length > 0) {
-        const stocks = responseData.map((d) => ({
-          code: d.stck_shrn_iscd, //주식 단축 종목코드
-          market: marketCode,
-          price: parseFloat(d.stck_prpr) || 0, //현재가
-          change_rate: parseFloat(d.prdy_ctrt) || 0, //전일 대비율
-          change_price: parseFloat(d.prdy_vrss) || 0, //전일 대비
-          volume: parseFloat(d.acml_vol) || 0, //누적 거래량
-        }));
-
-        // 검색 결과에 한글 이름 매핑
-        stocks.forEach((stock) => {
-          const match = matchedStocks.find((s) => s.code === stock.code);
-          if (match) stock.name = match.name;
-        });
+        const stocks = responseData.map((d) =>
+          transformStockData(d, marketCode, marketSymbols)
+        );
 
         setFilteredStocks(stocks);
       } else {
@@ -219,8 +229,6 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
     const allStocks = getFilteredStocks();
     renderTable(allStocks, false, selectedMarket);
     updateHeaderArrows();
-    // 검색 결과는 실시간 구독에서 제외
-    //stopRealTimeData();
   } catch (error) {
     console.error("검색 중 오류:", error);
   } finally {
@@ -228,29 +236,29 @@ export async function filterStocks(searchInput, marketSelect, stockSymbols) {
   }
 }
 
-// 마켓별 필터링 (KOSPI/KOSDAQ)
+/**
+ * 마켓별 필터링 (KOSPI/KOSDAQ)
+ * @param {HTMLSelectElement} marketSelect - 마켓 선택 요소
+ */
 export async function filterByMarket(marketSelect) {
   const market = marketSelect.value;
   showLoading(true);
-
-  // 마켓 변경 시 스크롤 위치 초기화
   resetScrollPosition();
 
   try {
-    // callApi 함수 사용
     const responseData = await callApi("GET_TOP_VOLUME_STOCKS", {
       marketCode: market,
     });
 
     if (Array.isArray(responseData) && responseData.length > 0) {
       const stocks = responseData.map((d) => ({
-        name: d.name, // 종목명
-        code: d.code, // 종목코드
-        market: market,
-        price: parseFloat(d.price) || 0, // 현재가
-        change_price: parseFloat(d.change) || 0, // 전일대비
-        change_rate: parseFloat(d.chgrate) || 0, // 등락률
-        volume: parseFloat(d.acml_vol) || 0, // 거래량
+        name: d.name,
+        code: d.code,
+        market,
+        price: parseFloat(d.price) || 0,
+        change_price: parseFloat(d.change) || 0,
+        change_rate: parseFloat(d.chgrate) || 0,
+        volume: parseFloat(d.acml_vol) || 0,
       }));
 
       setFilteredStocks(stocks);
@@ -270,27 +278,41 @@ export async function filterByMarket(marketSelect) {
   }
 }
 
-// 디바운싱 함수
+/**
+ * 디바운싱 함수 (기존 호환성을 위해 유지)
+ * @param {Function} func - 실행할 함수
+ * @param {number} delay - 지연 시간 (ms)
+ * @returns {Function} 디바운싱된 함수
+ * @deprecated utils.js의 debounce 함수를 사용하세요
+ */
 export function debounceSearch(func, delay) {
-  let searchTimeout;
-  return function (...args) {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => func.apply(this, args), delay);
-  };
+  return debounce(func, delay);
 }
 
-// 즐겨찾기 목록 저장 (시장별)
+/**
+ * 즐겨찾기 목록 저장 (시장별)
+ * @param {Array} favorites - 즐겨찾기 종목 코드 배열
+ * @param {string} market - 마켓 코드
+ */
 export function saveFavorites(favorites, market) {
   localStorage.setItem(`favoriteStocks_${market}`, JSON.stringify(favorites));
 }
 
-// 즐겨찾기 목록 불러오기 (시장별)
+/**
+ * 즐겨찾기 목록 불러오기 (시장별)
+ * @param {string} market - 마켓 코드
+ * @returns {Array} 즐겨찾기 종목 코드 배열
+ */
 export function getFavorites(market) {
   const data = localStorage.getItem(`favoriteStocks_${market}`);
   return data ? JSON.parse(data) : [];
 }
 
-// 즐겨찾기 토글 (시장별)
+/**
+ * 즐겨찾기 토글 (시장별)
+ * @param {string} stockCode - 종목 코드
+ * @param {string} market - 마켓 코드
+ */
 export function toggleFavorite(stockCode, market) {
   let favorites = getFavorites(market);
   if (favorites.includes(stockCode)) {

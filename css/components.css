@@ -183,17 +183,22 @@
   cursor: pointer;
   margin-right: 4px;
   vertical-align: middle;
+  transition: transform 0.1s ease;
+}
+.favorite-star:hover {
+  transform: scale(1.1);
 }
 .favorite-star polygon {
   fill: #ccc;
   stroke: none;
   stroke-width: 0;
-  transition: fill 0.2s, stroke 0.2s;
+  transition: fill 0.3s ease, stroke 0.3s ease, transform 0.2s ease;
 }
 .favorite-star.favorite-active polygon {
   fill: gold;
   stroke: gold;
   stroke-width: 1.5;
+  transform: scale(1.05);
 }
 
 .stock-code {
