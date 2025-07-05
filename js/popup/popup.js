@@ -321,7 +321,7 @@ async function showAllFavorites() {
 /**
  * 빈 즐겨찾기 메시지 표시
  */
-function showEmptyFavoritesMessage() {
+export function showEmptyFavoritesMessage() {
   const tbody = document.getElementById("stock-tbody");
   const favBtn = document.getElementById("show-favorites-btn");
   const searchInput = document.getElementById("search");

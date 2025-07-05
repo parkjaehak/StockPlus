@@ -352,7 +352,15 @@ async function updateFavoritesDisplay(marketAttr) {
 
   // 6. 안내문구 처리
   if (isEmptyArray(sortedFavoriteStocks)) {
-    showEmptyFavoritesMessage();
+    // popup.js의 showEmptyFavoritesMessage 함수 호출
+    import("./popup.js")
+      .then(({ showEmptyFavoritesMessage }) => {
+        showEmptyFavoritesMessage();
+      })
+      .catch(() => {
+        // fallback: 로컬 함수 사용
+        showEmptyFavoritesMessageLocal();
+      });
   } else {
     setFavoriteStocks(sortedFavoriteStocks);
     renderTable(sortedFavoriteStocks, false, marketAttr);
@@ -360,27 +368,12 @@ async function updateFavoritesDisplay(marketAttr) {
 }
 
 /**
- * 빈 즐겨찾기 메시지 표시
+ * 빈 즐겨찾기 메시지 표시 (로컬 fallback)
  */
-function showEmptyFavoritesMessage() {
+function showEmptyFavoritesMessageLocal() {
   const tbody = document.getElementById("stock-tbody");
   tbody.innerHTML = `<tr><td colspan="4"><div class="${CSS_CLASSES.EMPTY_FAVORITES_CONTAINER}"><div class="${CSS_CLASSES.EMPTY_FAVORITES_TEXT}">즐겨찾기한 종목이 없습니다.</div><button id="back-to-all-btn" class="${CSS_CLASSES.BTN_BACK_ALL}">전체보기</button></div></td></tr>`;
   setFavoriteStocks([]);
-
-  // 전체보기 버튼 이벤트 바인딩
-  const backBtn = document.getElementById("back-to-all-btn");
-  if (backBtn) {
-    backBtn.onclick = () => {
-      const searchInput = document.getElementById("search");
-      const favBtn = document.getElementById("show-favorites-btn");
-      if (searchInput) {
-        searchInput.value = "";
-        searchInput.dispatchEvent(new Event("input"));
-      }
-      if (favBtn) favBtn.classList.remove("active");
-      window.showingFavorites = false;
-    };
-  }
 }
 
 /**
