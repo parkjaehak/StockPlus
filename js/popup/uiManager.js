@@ -412,16 +412,18 @@ export function updateHeaderArrows() {
     const key = header.dataset.key;
     if (key === sortKey) {
       header.classList.add(CSS_CLASSES.SORT_ACTIVE);
+      // 모든 정렬 아이콘을 현재 정렬 상태에 맞게 업데이트
       header.innerHTML = header.innerHTML.replace(
-        /<i class="fas fa-sort sort-icon">/g,
+        /<i class="fas fa-sort[^"]*sort-icon[^"]*">/g,
         `<i class="fas fa-sort-${
           sortOrder === SORT_CONSTANTS.ASC ? "up" : "down"
-        } sort-icon">`
+        } sort-icon sort-active">`
       );
     } else {
       header.classList.remove(CSS_CLASSES.SORT_ACTIVE);
+      // 모든 정렬 아이콘을 기본 상태로 되돌리기
       header.innerHTML = header.innerHTML.replace(
-        /<i class="fas fa-sort-(up|down) sort-icon">/g,
+        /<i class="fas fa-sort[^"]*sort-icon[^"]*">/g,
         `<i class="fas fa-sort sort-icon">`
       );
     }
