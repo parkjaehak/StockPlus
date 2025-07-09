@@ -149,11 +149,11 @@ export function renderTable(
   const tbody = document.getElementById("stock-tbody");
   if (!append) tbody.innerHTML = "";
 
-  // 즐겨찾기 모드인지 확인
-  const isFavoritesMode = window.showingFavorites;
-  const favorites = isFavoritesMode
-    ? data.map((stock) => stock.code)
-    : getFavorites(market);
+  // 즐겨찾기 모드와 관계없이 항상 실제 즐겨찾기 데이터만 사용
+  let favorites = getFavorites(market);
+  if (!Array.isArray(favorites)) {
+    favorites = [];
+  }
 
   data.forEach((stock) => {
     const tr = createStockRow(stock, favorites, market);
