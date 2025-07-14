@@ -28,6 +28,10 @@
             >&times;</span
           >
         </div>
+        <label class="toggle-switch" title="나이트 모드 전환">
+          <input type="checkbox" id="darkmode-toggle-switch">
+          <span class="slider"></span>
+        </label>
         <button id="show-favorites-btn" title="즐겨찾기">
           <svg class="favorite-star" width="25" height="25" viewBox="0 0 24 24">
             <polygon
@@ -36,10 +40,10 @@
           </svg>
         </button>
       </div>
-      <div id="loader" class="loader-container">
-        <div class="loader"></div>
-      </div>
       <div class="table-container">
+        <div class="loader-container" id="loader">
+          <div class="loader"></div>
+        </div>
         <!-- 테이블 헤더 (고정) -->
         <div class="table-header">
           <table class="stock-table">
@@ -59,7 +63,6 @@
             </thead>
           </table>
         </div>
-
         <!-- 테이블 본문 (스크롤) -->
         <div class="table-body" ss-container>
           <table class="stock-table">

@@ -458,11 +458,45 @@ function setupEventListeners() {
 }
 
 /**
+ * 다크모드 토글 및 상태 저장/불러오기
+ */
+function setupDarkModeToggle() {
+  const toggle = document.getElementById("darkmode-toggle-switch");
+  const body = document.body;
+
+  // 저장된 상태 불러오기
+  chrome.storage && chrome.storage.local.get(["darkModeEnabled"], (result) => {
+    const enabled = result.darkModeEnabled;
+    if (enabled) {
+      body.classList.add("dark-mode");
+      if (toggle) toggle.checked = true;
+    } else {
+      body.classList.remove("dark-mode");
+      if (toggle) toggle.checked = false;
+    }
+  });
+
+  // 토글 이벤트
+  if (toggle) {
+    toggle.addEventListener("change", function () {
+      if (this.checked) {
+        body.classList.add("dark-mode");
+        chrome.storage && chrome.storage.local.set({ darkModeEnabled: true });
+      } else {
+        body.classList.remove("dark-mode");
+        chrome.storage && chrome.storage.local.set({ darkModeEnabled: false });
+      }
+    });
+  }
+}
+
+/**
  * 앱 초기화
  */
 function initializeApp() {
   initialRender();
   setupEventListeners();
+  setupDarkModeToggle(); // 다크모드 토글 초기화
   focusSearchInput();
 }
 

@@ -124,6 +124,8 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  position: relative;
+  z-index: 100;
 }
 
 .search-input-container {
@@ -133,6 +135,7 @@
   align-items: center;
   height: 32px;
   box-sizing: border-box;
+  line-height: 32px;
 }
 
 .search-icon {
@@ -146,8 +149,8 @@
 .search-clear {
   position: absolute;
   right: 7px;
-  top: 40%;
-  transform: translateY(-50%);
+  top: -1px;         /* 또는 8px, 9px 등으로 직접 조정 */
+  transform: none; 
   font-size: 20px;
   color: #888;
   cursor: pointer;
@@ -201,11 +204,7 @@
   transform: scale(1.05);
 }
 
-/* .stock-code {
-  font-size: 12px;
-  color: #888;
-  margin-left: 28px;
-}  // table.css로 이동 */
+
 
 #show-favorites-btn {
   margin-left: auto;
@@ -307,4 +306,48 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 다크모드 토글 스위치 스타일 */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin: 4px 8px 0 12px;
+  vertical-align: middle;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+.toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.toggle-switch input:checked + .slider {
+  background-color: #4a90e2;
+}
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(20px);
 }
