@@ -25,31 +25,36 @@ body {
 /** 다크 모드 스타일 (body에 .dark-mode 클래스가 붙었을 때 적용) **/
 .dark-mode {
   background: #181a1b !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
 }
 
 .dark-mode .container,
 .dark-mode .popup-main,
 .dark-mode .popup-content {
   background: #232526 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
 }
 
 .dark-mode table {
   background: #232526 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
   border-color: #333 !important;
 }
 
+/**현재가, 전일대비, 거래량에 대한 텍스트 색 설정**/
 .dark-mode th, .dark-mode td {
   background: #232526 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
   border-color: #333 !important;
+}
+/**종목명에 대한 텍스트 색 설정 **/
+.dark-mode .stock-name, .dark-mode .stock-code {
+  color: #ffffff !important;
 }
 
 .dark-mode input, .dark-mode select, .dark-mode textarea {
   background: #222 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
   border: 1px solid #444 !important;
 }
 
@@ -61,29 +66,25 @@ body {
 
 .dark-mode .notification {
   background: #222 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
   border-color: #444 !important;
 }
 
-.dark-mode .stock-name, .dark-mode .stock-code {
-  color: #e0e0e0 !important;
-}
 
-.dark-mode .arrow {
-  color: #ffb300 !important;
-}
+
+
 
 .dark-mode .popup-container,
 .dark-mode .table-container {
-  background: #181a1b !important;
+  background: rgba(24, 26, 27, 0.95) !important;
 }
 .dark-mode .loader-container {
   background-color: rgba(24, 26, 27, 0.95) !important;
 }
 
 .dark-mode .search-container {
-  background: #232526 !important;
-  border-color: #333 !important;
+  background: rgba(24, 26, 27, 0.95)!important;
+  border-color: rgba(24, 26, 27, 0.95) !important;
 }
 .dark-mode .search-input-container {
   background: #232526 !important;
@@ -91,28 +92,25 @@ body {
 }
 .dark-mode #market-select {
   background: #232526 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
   border-color: #444 !important;
 }
 .dark-mode #search {
   background: #232526 !important;
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
   border-color: #444 !important;
 }
 .dark-mode #show-favorites-btn {
-  background: #232526 !important;
-  border-color: #333 !important;
+  background: rgba(24, 26, 27, 0.95) !important;
+  border-color: rgba(24, 26, 27, 0.95)  !important;
 }
 
 .dark-mode .search-container,
 .dark-mode .search-container * {
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
+}
+/**스크롤바**/
+.dark-mode .ss-scroll {
+  background: rgba(202,202,202,0.3) !important;
 }
 
-/* 스크롤바 */
-.dark-mode ::-webkit-scrollbar {
-  background: #232526;
-}
-.dark-mode ::-webkit-scrollbar-thumb {
-  background: #444;
-}
