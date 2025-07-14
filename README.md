@@ -4,20 +4,24 @@
 
 한국투자증권 Open API를 통해 실시간 주식 시세를 크롬 확장 프로그램 팝업에서 확인할 수 있습니다. 실시간 데이터 업데이트, 정렬, 검색, 즐겨찾기 등의 기능을 제공합니다.
 
-<div style="display: flex; gap: 20px; justify-content: center; text-align: center;">
+<div style="display: flex; gap: 20px; justify-content: center; text-align: center; margin-bottom: 40px;">
   <div>
-    <img src="stockplus_v0.1.0.png" alt="StockPlus Light Mode" width="300"/>
+    <img src="stockplus_v0.1.0.png" alt="StockPlus Light Mode" width="300" />
     <div>라이트모드</div>
   </div>
   <div>
-    <img src="stockplus_night_v0.2.0.png" alt="StockPlus Dark Mode" width="300"/>
+    <img src="stockplus_night_v0.2.0.png" alt="StockPlus Dark Mode" width="300" />
     <div>다크모드</div>
   </div>
+</div>
+
+<div style="display: flex; justify-content: center; text-align: center;">
   <div>
-    <img src="stockplus_logo_2.png" alt="StockPlus Logo" width="300"/>
+    <img src="stockplus_logo_2.png" alt="StockPlus Logo" width="300" />
     <div>로고</div>
   </div>
 </div>
+
 
 
 ## 개발 기간
