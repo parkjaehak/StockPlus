@@ -6,6 +6,7 @@
 
 <div style="display: flex; gap: 20px; justify-content: center;">
   <img src="stockplus_v0.1.0.png" alt="StockPlus" width="300"/>
+  <img src="stockplus_night_v0.2.0.png" alt="StockPlus" width="300"/>
   <img src="stockplus_logo_2.png" alt="StockPlus" width="300"/>
 </div>
 
